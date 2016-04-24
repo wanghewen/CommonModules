@@ -1,0 +1,678 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>CommonModules &mdash; CommonModules 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="CommonModules 0.1 documentation" href="../index.html" />
+    <link rel="up" title="Module code" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for CommonModules</h1><div class="highlight"><pre>
+<span class="c"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot; Some common modules for this project.&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span>
+<span class="kn">import</span> <span class="nn">scipy.io</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="kn">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">networkx.readwrite</span> <span class="kn">import</span> <span class="n">json_graph</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;LogFile.log&quot;</span><span class="p">,</span><span class="n">filemode</span><span class="o">=</span><span class="s">&quot;a&quot;</span><span class="p">,</span>
+                    <span class="n">format</span><span class="o">=</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(filename)s</span><span class="s">[line:</span><span class="si">%(lineno)d</span><span class="s">] </span><span class="si">%(levelname)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">,</span>
+                    <span class="n">datefmt</span><span class="o">=</span><span class="s">&#39;%Y/%m/</span><span class="si">%d</span><span class="s"> %H:%M:%S&#39;</span><span class="p">)</span>
+<span class="n">ErrorHandler</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
+<span class="n">ErrorHandler</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">)</span>
+<span class="n">ErrorHandler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%(asctime)s</span><span class="s"> </span><span class="si">%(filename)s</span><span class="s">[line:</span><span class="si">%(lineno)d</span><span class="s">] </span><span class="si">%(levelname)s</span><span class="s">: </span><span class="si">%(message)s</span><span class="s">&#39;</span><span class="p">))</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">()</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">ErrorHandler</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">DefaultOrderedDict</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">):</span>
+    <span class="c"># Source: http://stackoverflow.com/a/6190500/562769</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">default_factory</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">default_factory</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="ow">and</span>
+           <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">default_factory</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">Callable</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;first argument must be callable&#39;</span><span class="p">)</span>
+        <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span> <span class="o">=</span> <span class="n">default_factory</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__missing__</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__missing__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__reduce__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">,</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">args</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__copy__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">__copy__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__deepcopy__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">memo</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">copy</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">,</span>
+                          <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())))</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;OrderedDefaultDict(</span><span class="si">%s</span><span class="s">, </span><span class="si">%s</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">default_factory</span><span class="p">,</span>
+                                               <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+
+<div class="viewcode-block" id="ListApkFiles"><a class="viewcode-back" href="../index.html#CommonModules.ListApkFiles">[docs]</a><span class="k">def</span> <span class="nf">ListApkFiles</span><span class="p">(</span><span class="n">ApkDirectory</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Get the Apk file names for an ApkDirectory in a sorted order. Rerurn an empty list if ApkDirectory==&quot;&quot;.</span>
+
+<span class="sd">:param String ApkDirectory: absolute path of a apk file directory</span>
+<span class="sd">:return: ListOfApkFiles: The list of absolute paths of Apks under ApkDirectory</span>
+<span class="sd">:rtype: List[String]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ListOfApkFiles</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">ApkDirectory</span><span class="o">==</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;Directory is empty!&#39;</span><span class="p">)</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">ApkDirectory</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="c">#list filenames </span>
+        <span class="c">#get the absolute path for the files</span>
+        <span class="n">AbsolutePath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">ApkDirectory</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+        <span class="c">#get the absolute path for the files</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="s">&quot;.apk&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+                <span class="n">ListOfApkFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ListOfApkFiles</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ListFiles"><a class="viewcode-back" href="../index.html#CommonModules.ListFiles">[docs]</a><span class="k">def</span> <span class="nf">ListFiles</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="n">Extension</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Given an extension, get the file names for a Directory in a sorted order. Rerurn an empty list if Directory == &quot;&quot;.</span>
+
+<span class="sd">    :param String Directory: absolute path of a file directory</span>
+<span class="sd">    :param String Extension: Extension of the files you want. Better include &quot;.&quot; in the Extension</span>
+<span class="sd">    :return: ListOfFiles: The list of absolute paths of the files you want under Directory</span>
+<span class="sd">    :rtype: List[String]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ListOfFiles</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">Directory</span> <span class="o">==</span> <span class="s">&quot;&quot;</span> <span class="ow">or</span> <span class="n">Directory</span> <span class="o">==</span> <span class="p">[]):</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">list</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="s">&#39;Directory is not a directory!&#39;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">Extension</span><span class="p">)</span><span class="o">!=</span><span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Extension</span><span class="p">,</span> <span class="s">&#39;Extension is not a string!&#39;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">Extension</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Extension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">):</span>
+            <span class="n">Extension</span> <span class="o">=</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="n">Extension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+        <span class="n">Directories</span> <span class="o">=</span> <span class="n">Directory</span>
+        <span class="k">for</span> <span class="n">Directory</span> <span class="ow">in</span> <span class="n">Directories</span><span class="p">:</span>
+                <span class="n">filenames</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+                    <span class="c">#list filenames </span>
+                    <span class="c">#get the absolute path for the files</span>
+                    <span class="n">AbsolutePath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+                    <span class="c">#get the absolute path for the files</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Extension</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+                            <span class="n">ListOfFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">filenames</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+            <span class="c">#list filenames </span>
+            <span class="c">#get the absolute path for the files</span>
+            <span class="n">AbsolutePath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+            <span class="c">#get the absolute path for the files</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">==</span><span class="n">Extension</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+                    <span class="n">ListOfFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ListOfFiles</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ListAllFiles"><a class="viewcode-back" href="../index.html#CommonModules.ListAllFiles">[docs]</a><span class="k">def</span> <span class="nf">ListAllFiles</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="n">Extension</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Given an extension, get the file names for a Directory and all its sub-directories in a sorted order. Rerurn an empty list if Directory == &quot;&quot;.</span>
+
+<span class="sd">    :param String Directory: absolute path of a file directory</span>
+<span class="sd">    :param String Extension: Extension of the files you want. Better include &quot;.&quot; in the Extension</span>
+<span class="sd">    :return: ListOfFiles: The list of absolute paths of the files you want under Directory</span>
+<span class="sd">    :rtype: List[String]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ListOfFiles</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">Directory</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="s">&#39;Directory is empty!&#39;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="s">&#39;Directory is not a directory!&#39;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">Extension</span><span class="p">)</span><span class="o">!=</span><span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Extension</span><span class="p">,</span> <span class="s">&#39;Extension is not a string!&#39;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">Extension</span><span class="p">):</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">Extension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;.&quot;</span><span class="p">):</span>
+            <span class="n">Extension</span> <span class="o">=</span> <span class="s">&quot;.&quot;</span> <span class="o">+</span> <span class="n">Extension</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">root</span><span class="p">,</span> <span class="n">dirs</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">Directory</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="c">#list filenames </span>
+            <span class="c">#get the absolute path for the files</span>
+            <span class="n">AbsolutePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="c">#get the absolute path for the files</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">filename</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">Extension</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+                    <span class="n">ListOfFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ListOfFiles</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ListDirs"><a class="viewcode-back" href="../index.html#CommonModules.ListDirs">[docs]</a><span class="k">def</span> <span class="nf">ListDirs</span><span class="p">(</span><span class="n">Directory</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Get all sub-directory paths for a Directory in a sorted order. Rerurn an empty list if Directory == &quot;&quot;. Modified from ListFiles(which means variable names remain the same...)</span>
+
+<span class="sd">    :param String Directory: absolute path of a file directory</span>
+<span class="sd">    :return: ListOfFiles: The list of absolute paths of the sub-directories you want under the Directory</span>
+<span class="sd">    :rtype: List[String]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">ListOfFiles</span><span class="o">=</span><span class="p">[]</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">Directory</span> <span class="o">==</span> <span class="s">&quot;&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="s">&#39;Directory is empty!&#39;</span><span class="p">)</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="s">&#39;Directory is not a directory!&#39;</span><span class="p">)</span>
+    <span class="n">filenames</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">Directory</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">filenames</span><span class="p">:</span>
+        <span class="c">#list filenames </span>
+        <span class="c">#get the absolute path for the files</span>
+        <span class="n">AbsolutePath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">Directory</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+        <span class="c">#get the absolute path for the files</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+            <span class="n">ListOfFiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ListOfFiles</span><span class="p">)</span>
+    
+    </div>
+<div class="viewcode-block" id="FileExist"><a class="viewcode-back" href="../index.html#CommonModules.FileExist">[docs]</a><span class="k">def</span> <span class="nf">FileExist</span><span class="p">(</span><span class="n">FilePath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Given file path, determine a file exist or not.</span>
+
+<span class="sd">    :param String FilePath: absolute path of a file or directory</span>
+<span class="sd">    :rtype: Boolean</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">FilePath</span><span class="p">)</span><span class="o">==</span><span class="bp">True</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c">#if os.path.isdir(ApkFilePath)==False:</span>
+        <span class="c">#    if(os.path.basename(ApkFilePath)) in os.listdir(os.getcwd()):</span>
+        <span class="c">#        return True</span>
+        <span class="k">return</span> <span class="bp">False</span>
+</div>
+<div class="viewcode-block" id="RemoveDirectory"><a class="viewcode-back" href="../index.html#CommonModules.RemoveDirectory">[docs]</a><span class="k">def</span> <span class="nf">RemoveDirectory</span><span class="p">(</span><span class="n">Folder</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Given Folder path, remove this folder(include all content inside).</span>
+
+<span class="sd">    :param String Folder: absolute path of a directory</span>
+<span class="sd">    :rtype: Boolean</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">FileExist</span><span class="p">(</span><span class="n">Folder</span><span class="p">)</span> <span class="o">==</span> <span class="bp">False</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s">&quot;Directory not found!&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">Folder</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ExportToJson"><a class="viewcode-back" href="../index.html#CommonModules.ExportToJson">[docs]</a><span class="k">def</span> <span class="nf">ExportToJson</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="n">Content</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Export something to json file. </span>
+<span class="sd">    Will automatic convert Set content into List.</span>
+
+<span class="sd">    :param String AbsolutePath: absolute path to store the json file</span>
+<span class="sd">    :param Variant Content: something you want to export</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">Content</span><span class="p">,</span><span class="nb">set</span><span class="p">)):</span>
+            <span class="n">Content</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Content</span><span class="p">)</span>
+        <span class="c">#if(isinstance(Content, collections.defaultdict)):</span>
+        <span class="c">#    Content = dict(Content)</span>
+        <span class="n">f</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span><span class="s">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Content</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Json data writing Failed.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Json data writing Failed.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;f&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">():</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c">#sys.exit(&quot;Json data writing Failed.&quot;)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Json data of &quot;</span><span class="o">+</span><span class="n">AbsolutePath</span><span class="o">+</span><span class="s">&quot; written successfully.&quot;</span><span class="p">)</span>     
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+</div>
+<div class="viewcode-block" id="ExportToPkl"><a class="viewcode-back" href="../index.html#CommonModules.ExportToPkl">[docs]</a><span class="k">def</span> <span class="nf">ExportToPkl</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span><span class="n">Content</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Export something to pickle file. </span>
+<span class="sd">    Will automatic convert Set content into List.</span>
+
+<span class="sd">    :param String AbsolutePath: absolute path to store the json file</span>
+<span class="sd">    :param Variant Content: something you want to export</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">Content</span><span class="p">,</span> <span class="nb">set</span><span class="p">)):</span>
+            <span class="n">Content</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">Content</span><span class="p">)</span>
+        <span class="c">#if(isinstance(Content, collections.defaultdict)):</span>
+        <span class="c">#    Content = dict(Content)</span>
+        <span class="n">f</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Content</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Pickle data writing Failed.&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Pickle data writing Failed.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;f&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">():</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c">#sys.exit(&quot;Json data writing Failed.&quot;)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Pickle data of &quot;</span> <span class="o">+</span> <span class="n">AbsolutePath</span> <span class="o">+</span> <span class="s">&quot; written successfully.&quot;</span><span class="p">)</span>     
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ImportFromPkl"><a class="viewcode-back" href="../index.html#CommonModules.ImportFromPkl">[docs]</a><span class="k">def</span> <span class="nf">ImportFromPkl</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Import something from pickle file. </span>
+
+<span class="sd">    :param String AbsolutePath: absolute path of the pickle file</span>
+<span class="sd">    :return: Content: Content in the pickle file</span>
+<span class="sd">    :rtype: Variant</span>
+<span class="sd">    &#39;&#39;&#39;</span>    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">File</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span><span class="s">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="n">Content</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">File</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Pickle data loading Failed.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;File&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">():</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c">#sys.exit(&quot;Json data loading Failed.&quot;)    </span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Pickle data of &quot;</span><span class="o">+</span><span class="n">AbsolutePath</span><span class="o">+</span><span class="s">&quot; loaded successfully.&quot;</span><span class="p">)</span>
+        <span class="n">File</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Content</span>
+
+</div>
+<div class="viewcode-block" id="ExportToJsonNodeLinkData"><a class="viewcode-back" href="../index.html#CommonModules.ExportToJsonNodeLinkData">[docs]</a><span class="k">def</span> <span class="nf">ExportToJsonNodeLinkData</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span><span class="n">GraphContent</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Export graph node link date to json file. </span>
+
+<span class="sd">    :param String AbsolutePath: absolute path to store the json file</span>
+<span class="sd">    :param nxGraph GraphContent: some graph you want to export</span>
+<span class="sd">    &#39;&#39;&#39;</span>    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span><span class="s">&quot;wb&quot;</span><span class="p">)</span>
+        <span class="n">Content</span><span class="o">=</span><span class="n">json_graph</span><span class="o">.</span><span class="n">node_link_data</span><span class="p">(</span><span class="n">GraphContent</span><span class="p">)</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">Content</span><span class="p">,</span><span class="n">f</span><span class="p">,</span><span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;JsonNodeLinkData writing Failed.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;f&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">():</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c">#sys.exit(&quot;JsonNodeLinkData writing Failed.&quot;)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;JsonNodeLinkData of &quot;</span><span class="o">+</span><span class="n">AbsolutePath</span><span class="o">+</span><span class="s">&quot; written successfully.&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="ExportToGML"><a class="viewcode-back" href="../index.html#CommonModules.ExportToGML">[docs]</a><span class="k">def</span> <span class="nf">ExportToGML</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="n">GraphContent</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Export graph node link date to json file. </span>
+
+<span class="sd">    :param String AbsolutePath: absolute path to store the json file</span>
+<span class="sd">    :param nxGraph GraphContent: some graph you want to export</span>
+<span class="sd">    &#39;&#39;&#39;</span>    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">write_gml</span><span class="p">(</span><span class="n">GraphContent</span><span class="p">,</span> <span class="n">AbsolutePath</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;JsonNodeLinkData writing Failed.&quot;</span><span class="p">)</span>
+        <span class="c">#sys.exit(&quot;JsonNodeLinkData writing Failed.&quot;)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;JsonNodeLinkData of &quot;</span><span class="o">+</span><span class="n">AbsolutePath</span><span class="o">+</span><span class="s">&quot; written successfully.&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ImportFromJsonNodeLinkData"><a class="viewcode-back" href="../index.html#CommonModules.ImportFromJsonNodeLinkData">[docs]</a><span class="k">def</span> <span class="nf">ImportFromJsonNodeLinkData</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Import graph node link date from json file.</span>
+
+<span class="sd">:param String AbsolutePath: absolute path of the json file</span>
+<span class="sd">:return: GraphContent: Graph content in the json file</span>
+<span class="sd">:rtype: nxGraph</span>
+<span class="sd">    &#39;&#39;&#39;</span>    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span><span class="s">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="n">Content</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">GraphContent</span><span class="o">=</span><span class="n">json_graph</span><span class="o">.</span><span class="n">node_link_graph</span><span class="p">(</span><span class="n">Content</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;JsonNodeLinkData writing Failed.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;f&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">():</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c">#sys.exit(&quot;JsonNodeLinkData writing Failed.&quot;)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;JsonNodeLinkData of &quot;</span><span class="o">+</span><span class="n">AbsolutePath</span><span class="o">+</span><span class="s">&quot; loaded successfully.&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">GraphContent</span>
+</div>
+<div class="viewcode-block" id="ImportFromJson"><a class="viewcode-back" href="../index.html#CommonModules.ImportFromJson">[docs]</a><span class="k">def</span> <span class="nf">ImportFromJson</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Import something from json file. </span>
+
+<span class="sd">    :param String AbsolutePath: absolute path of the json file</span>
+<span class="sd">    :return: Content: Content in the json file</span>
+<span class="sd">    :rtype: Variant</span>
+<span class="sd">    &#39;&#39;&#39;</span>    
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">File</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span><span class="s">&quot;rb&quot;</span><span class="p">)</span>
+        <span class="n">Content</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">encoding</span> <span class="o">=</span> <span class="s">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;Json data loading Failed.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s">&quot;File&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">():</span>
+            <span class="n">File</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c">#sys.exit(&quot;Json data loading Failed.&quot;)    </span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s">&quot;Json data of &quot;</span><span class="o">+</span><span class="n">AbsolutePath</span><span class="o">+</span><span class="s">&quot; loaded successfully.&quot;</span><span class="p">)</span>
+        <span class="n">File</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">Content</span>
+</div>
+<div class="viewcode-block" id="FlattenList"><a class="viewcode-back" href="../index.html#CommonModules.FlattenList">[docs]</a><span class="k">def</span> <span class="nf">FlattenList</span><span class="p">(</span><span class="n">List</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Flatten a list using itertools no matter how many nest it has. </span>
+<span class="sd">    E.g. [[&#39;foo&#39;, &#39;baz&#39;], [&#39;gg&#39;]] or [[[&#39;foo&#39;, &#39;baz&#39;], [&#39;gg&#39;]]] to [&#39;foo&#39;, &#39;baz&#39;, &#39;gg&#39;].</span>
+
+<span class="sd">    :param List[Variant]: The list you want to flatten</span>
+<span class="sd">    :return: List: Flattened list</span>
+<span class="sd">    :rtype: List[Variant]</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">Element</span> <span class="ow">in</span> <span class="n">List</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">Element</span><span class="p">)</span><span class="o">==</span><span class="nb">list</span><span class="p">:</span>
+            <span class="n">List</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">List</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">FlattenList</span><span class="p">(</span><span class="n">List</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">List</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="CombineSparseMatricesRowWise"><a class="viewcode-back" href="../index.html#CommonModules.CombineSparseMatricesRowWise">[docs]</a><span class="k">def</span> <span class="nf">CombineSparseMatricesRowWise</span><span class="p">(</span><span class="n">MainMatrix</span><span class="p">,</span> <span class="n">AddedMatrix</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Stack two scipy sparse matrices vertically (row wise). Will initialize the main matrix to be two dimensional csr_matrix with all zero elements if the main matrix is empty.</span>
+<span class="sd">    </span>
+<span class="sd">    :param SparseMatrix MainMatrix: The main matrix that you want to add the AddedMatrix.</span>
+<span class="sd">    :param SparseMatrix AddedMatrix: The matrix added followed by the main matrix.</span>
+<span class="sd">    :return: Result: The result of Stack sparse matrices vertically (row wise).</span>
+<span class="sd">    :rtype: SparseMatrix</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">MainMatrix</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">MainMatrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">AddedMatrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">int</span><span class="p">)])</span>
+    <span class="n">Result</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">MainMatrix</span><span class="p">,</span> <span class="n">AddedMatrix</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">Result</span>
+</div>
+<div class="viewcode-block" id="DeleteLilMatrixRow"><a class="viewcode-back" href="../index.html#CommonModules.DeleteLilMatrixRow">[docs]</a><span class="k">def</span> <span class="nf">DeleteLilMatrixRow</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Delete a row in a scipy.sparse.lil_matrix.</span>
+
+<span class="sd">    :param scipy.sparse.lil_matrix mat: The scipy.sparse.lil_matrix you want to operate on.</span>
+<span class="sd">    :param Int i: The row number that you want to delete</span>
+<span class="sd">    :return: SparseMatrix mat: The result of deleted sparse matrix.</span>
+<span class="sd">    :rtype: SparseMatrix</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">lil</span><span class="o">.</span><span class="n">lil_matrix</span><span class="p">):</span>
+        <span class="c">#print mat.__class__</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;works only for LIL format -- use .tolil() first&quot;</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">rows</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">rows</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">mat</span><span class="o">.</span><span class="n">_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">mat</span>
+</div>
+<div class="viewcode-block" id="DeleteCsrMatrixRow"><a class="viewcode-back" href="../index.html#CommonModules.DeleteCsrMatrixRow">[docs]</a><span class="k">def</span> <span class="nf">DeleteCsrMatrixRow</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">i</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Delete a row in a scipy.sparse.csr_matrix.</span>
+
+<span class="sd">    :param scipy.sparse.csr_matrix mat: The scipy.sparse.csr_matrix you want to operate on.</span>
+<span class="sd">    :param Int i: The row number that you want to delete</span>
+<span class="sd">    :return: SparseMatrix mat: The result of deleted sparse matrix.</span>
+<span class="sd">    :rtype: SparseMatrix</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mat</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">print</span><span class="p">(</span><span class="s">&quot;Warning: works only for CSR format -- use .tocsr() first&quot;</span><span class="p">)</span>
+            <span class="n">mat</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;cannot convert mat to CSR format&quot;</span><span class="p">)</span>
+        <span class="c">#raise ValueError(&quot;works only for CSR format -- use .tocsr() first&quot;)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span><span class="o">-</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:]</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">data</span><span class="p">[:</span><span class="o">-</span><span class="n">n</span><span class="p">]</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span><span class="o">-</span><span class="n">n</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]:]</span>
+        <span class="n">mat</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">indices</span><span class="p">[:</span><span class="o">-</span><span class="n">n</span><span class="p">]</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[</span><span class="n">i</span><span class="p">:]</span> <span class="o">-=</span> <span class="n">n</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">indptr</span> <span class="o">=</span> <span class="n">mat</span><span class="o">.</span><span class="n">indptr</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">mat</span><span class="o">.</span><span class="n">_shape</span> <span class="o">=</span> <span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">mat</span><span class="o">.</span><span class="n">_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">mat</span>
+
+</div>
+<div class="viewcode-block" id="ExportNpArray"><a class="viewcode-back" href="../index.html#CommonModules.ExportNpArray">[docs]</a><span class="k">def</span> <span class="nf">ExportNpArray</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="n">NpArray</span><span class="p">,</span> <span class="n">Format</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%f</span><span class="s">&quot;</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Export a Numpy array to a file.</span>
+<span class="sd">    </span>
+<span class="sd">    :param String AbsolutePath: The stored file location.</span>
+<span class="sd">    :param numpy.array NpArray: The Numpy array you want to store.</span>
+<span class="sd">    :param String Format: How to print each element, e.g. %i, %10.5f</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="s">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">File</span><span class="p">:</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">NpArray</span><span class="p">,</span> <span class="n">fmt</span> <span class="o">=</span> <span class="n">Format</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;NpArray saving Failed.&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ImportNpArray"><a class="viewcode-back" href="../index.html#CommonModules.ImportNpArray">[docs]</a><span class="k">def</span> <span class="nf">ImportNpArray</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">ndmin</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Import a Numpy array from a file.</span>
+<span class="sd">    </span>
+<span class="sd">    :param String AbsolutePath: The stored file location.</span>
+<span class="sd">    :param data-type DataType: How to match each element, e.g. int, float</span>
+<span class="sd">    :param int ndmin: How many dimensions of array at least you will have.</span>
+<span class="sd">    :return: NpArray: NpArray in the file</span>
+<span class="sd">    :rtype: NpArray</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">NpArray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">loadtxt</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="n">DataType</span><span class="p">,</span> <span class="n">ndmin</span> <span class="o">=</span> <span class="n">ndmin</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">NpArray</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;NpArray loading Failed.&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ExportSparseMatrix"><a class="viewcode-back" href="../index.html#CommonModules.ExportSparseMatrix">[docs]</a><span class="k">def</span> <span class="nf">ExportSparseMatrix</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="n">SparseMatrix</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Export a scipy sparse matrix to a file using matrix market format.</span>
+<span class="sd">    Please refer to http://math.nist.gov/MatrixMarket/formats.html for more information about this format.</span>
+<span class="sd">    </span>
+<span class="sd">    :param String AbsolutePath: The stored file location.</span>
+<span class="sd">    :param scipy sparse matrix SparseMatrix: The scipy sparse matrix you want to store.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">,</span> <span class="s">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">File</span><span class="p">:</span>
+            <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">mmwrite</span><span class="p">(</span><span class="n">File</span><span class="p">,</span> <span class="n">SparseMatrix</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;SparseMatrix saving Failed.&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ImportSparseMatrix"><a class="viewcode-back" href="../index.html#CommonModules.ImportSparseMatrix">[docs]</a><span class="k">def</span> <span class="nf">ImportSparseMatrix</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Import a scipy sparse matrix from a file using matrix market format.</span>
+<span class="sd">    </span>
+<span class="sd">    :param String AbsolutePath: The stored file location.</span>
+<span class="sd">    :return: SparseMatrix: (converted) scipy csr_matrix in the file</span>
+<span class="sd">    :rtype: Scipy Sparse Matrix</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">SparseMatrix</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">mmread</span><span class="p">(</span><span class="n">AbsolutePath</span><span class="p">)</span>
+        <span class="n">SparseMatrix</span> <span class="o">=</span> <span class="n">SparseMatrix</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">SparseMatrix</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s">&quot;SparseMatrix loading Failed.&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="IfTwoSparseMatrixEqual"><a class="viewcode-back" href="../index.html#CommonModules.IfTwoSparseMatrixEqual">[docs]</a><span class="k">def</span> <span class="nf">IfTwoSparseMatrixEqual</span><span class="p">(</span><span class="n">SparseMatrix1</span><span class="p">,</span> <span class="n">SparseMatrix2</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Check if two scipy sparse matrix is exactly the same.</span>
+<span class="sd">    </span>
+<span class="sd">    :param SparseMatrix SparseMatrix1: The first scipy sparse matrix.</span>
+<span class="sd">    :param SparseMatrix SparseMatrix2: The second scipy sparse matrix.</span>
+<span class="sd">    :return: Equal: True if they are equal, otherwise will be false.</span>
+<span class="sd">    :rtype: Boolean</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">SparseMatrix1</span> <span class="o">-</span> <span class="n">SparseMatrix2</span><span class="p">)</span><span class="o">.</span><span class="n">nnz</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+
+</div>
+<div class="viewcode-block" id="NestedDict"><a class="viewcode-back" href="../index.html#CommonModules.NestedDict">[docs]</a><span class="k">class</span> <span class="nc">NestedDict</span><span class="p">(</span><span class="nb">dict</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Implementation of perl&#39;s autovivification feature(i.e. Nested dicts). </span>
+<span class="sd">    E.g. </span>
+
+<span class="sd">    a = NestedDict()</span>
+
+<span class="sd">    a[1][2][3] = 4</span>
+<span class="sd">    a[1][3][3] = 5</span>
+<span class="sd">    a[1][2][&#39;test&#39;] = 6</span>
+
+<span class="sd">    print a</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">dict</span><span class="o">.</span><span class="n">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)()</span>
+            <span class="k">return</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="ConvertTimeStampToDateTime"><a class="viewcode-back" href="../index.html#CommonModules.ConvertTimeStampToDateTime">[docs]</a><span class="k">def</span> <span class="nf">ConvertTimeStampToDateTime</span><span class="p">(</span><span class="n">TimeStamp</span><span class="p">,</span> <span class="n">TimeType</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ReturnType</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Convert a time stamp(seconds since epoch) to a Python datetime object.</span>
+<span class="sd">    </span>
+<span class="sd">    :param Number/String TimeStamp: A time stamp(seconds since epoch).</span>
+<span class="sd">    :param Number TimeType: Type 0 means the same time zone as current computer. Type 1 means UTC time.</span>
+<span class="sd">    :param Number ReturnType: ReturnType 0 means datetime object. ReturnType 1 means time.struct_time object, which can be used like a tuple.</span>
+<span class="sd">    :return: DateTimeObjcet/DateTimeObject.timetuple():</span>
+<span class="sd">    :rtype: datetime object/time.struct_time object</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">TimeStamp</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">TimeStamp</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">TimeType</span>  <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">DateTimeObject</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">TimeStamp</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">TimeType</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">DateTimeObject</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">utcfromtimestamp</span><span class="p">(</span><span class="n">TimeStamp</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Incorrect TimeType.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">ReturnType</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DateTimeObject</span>
+    <span class="k">elif</span> <span class="n">ReturnType</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DateTimeObject</span><span class="o">.</span><span class="n">timetuple</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Incorrect ReturnType.&quot;</span><span class="p">)</span>
+
+</div>
+<div class="viewcode-block" id="ConcatenateIntegers"><a class="viewcode-back" href="../index.html#CommonModules.ConcatenateIntegers">[docs]</a><span class="k">def</span> <span class="nf">ConcatenateIntegers</span><span class="p">(</span><span class="o">*</span><span class="n">Integers</span><span class="p">):</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Concatenate/Merge integers into one integer. E.g. 10 and 20 to 1020.</span>
+
+<span class="sd">    :param Integers Integers: Integers to be concatenated.</span>
+<span class="sd">    :return: Result: Concatenated integer.</span>
+<span class="sd">    :rtype: Integer</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">Result</span> <span class="o">=</span> <span class="s">&#39;&#39;</span>
+    <span class="k">for</span> <span class="n">Integer</span> <span class="ow">in</span> <span class="n">Integers</span><span class="p">:</span>
+        <span class="n">Result</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Integer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">Result</span><span class="p">)</span>
+     </div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Wang Hewen.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.6</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
