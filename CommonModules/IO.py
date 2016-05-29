@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-"""File I/O related operations, such as list files or remove files/folder,"""
+"""File I/O related operations, such as list files, import/export or remove files/folder."""
 
 __author__ = "Wang Hewen"
 
@@ -53,7 +53,7 @@ def ListFiles(Directory, Extension):
         raise ValueError(Extension, 'Extension is not a string!')
     if(Extension):
         if(Extension[0] != "."):
-            Extension = "." + Extension[0]
+            Extension = "." + Extension
     if type(Directory) == list:
         Directories = Directory
         for Directory in Directories:
@@ -96,7 +96,7 @@ def ListAllFiles(Directory, Extension):
         raise ValueError(Extension, 'Extension is not a string!')
     if(Extension):
         if(Extension[0] != "."):
-            Extension = "." + Extension[0]
+            Extension = "." + Extension
     for root, dirs, files in os.walk(Directory):
         for filename in files:
             #list filenames 
