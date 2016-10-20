@@ -1,3 +1,7 @@
+## [0.1.2] - 2016-10-21
+### Fixed
+- Fixed small bugs for ExportToJson in IO.py.
+
 ## [0.1.1] - 2016-05-29
 ### Added
 - Added CHANGELOG.md

@@ -171,7 +171,7 @@ def ExportToJson(AbsolutePath, Content):
         Content = list(Content)
     #if(isinstance(Content, collections.defaultdict)):
     #    Content = dict(Content)
-    with open(AbsolutePath,"wb") as f:
+    with open(AbsolutePath, "w", encoding = "utf8") as f:
         json.dump(Content, f, indent=4)
 
 
@@ -246,7 +246,7 @@ def ImportFromJson(AbsolutePath):
     :return: Content: Content in the json file
     :rtype: Variant
     '''    
-    with open(AbsolutePath,"rb") as File:
+    with open(AbsolutePath,"r") as File:
         Content=json.load(File, encoding = "utf-8")
         return Content
 def ExportNpArray(AbsolutePath, NpArray, Format = "%f"):
