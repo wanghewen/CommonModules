@@ -39,7 +39,7 @@ def CombineSparseMatricesRowWise(MainMatrix, AddedMatrix, RemoveFirstZerosRow = 
     if MainMatrixInitialSize == 0:
         MainMatrix = scipy.sparse.csr_matrix([np.zeros(AddedMatrix.shape[1], dtype = int)])
     elif MainMatrixInitialShape == 1:#Need to do this conversion otherwise will return error
-        MainMatrix = scipy.sparse.csr_matrix([MainMatrix[0]])
+        MainMatrix = scipy.sparse.csr_matrix(MainMatrix)
 
     Result = scipy.sparse.vstack([MainMatrix, AddedMatrix], format = "csr")
     if MainMatrixInitialSize == 0 and RemoveFirstZerosRow:
