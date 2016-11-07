@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{6e9b6115-f6e0-4309-8512-b097f27b0ea5}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>CommonModules.py</StartupFile>
+    <StartupFile>Test.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -29,6 +29,9 @@
     <Compile Include="CommonModules\__init__.py" />
     <Compile Include="documentation\conf.py" />
     <Compile Include="setup.py" />
+    <Compile Include="Test.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="CommonModules\" />
@@ -44,6 +47,7 @@
     <Folder Include="gh-pages\stylesheets\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CHANGELOG.md" />
     <Content Include="CommonModules\__pycache__\DataStructure.cpython-35.pyc" />
     <Content Include="CommonModules\__pycache__\DataStructureOperations.cpython-35.pyc" />
     <Content Include="CommonModules\__pycache__\IO.cpython-35.pyc" />

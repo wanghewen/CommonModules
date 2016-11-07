@@ -257,8 +257,8 @@ def ExportNpArray(AbsolutePath, NpArray, Format = "%f"):
     :param numpy.array NpArray: The Numpy array you want to store.
     :param String Format: How to print each element, e.g. %i, %10.5f
     '''
-    with open(AbsolutePath, "w+") as File:
-        np.savetxt(File, NpArray, fmt = Format)
+
+    np.savetxt(AbsolutePath, NpArray, fmt = Format)
 
 def ImportNpArray(AbsolutePath, DataType, ndmin = 0):
     '''
@@ -281,7 +281,7 @@ def ExportSparseMatrix(AbsolutePath, SparseMatrix):
     :param String AbsolutePath: The stored file location.
     :param scipy sparse matrix SparseMatrix: The scipy sparse matrix you want to store.
     '''
-    with open(AbsolutePath, "w+") as File:
+    with open(AbsolutePath, "wb+") as File:
         scipy.io.mmwrite(File, SparseMatrix)
 
 def ImportSparseMatrix(AbsolutePath):

@@ -5,6 +5,7 @@ __author__ = "Wang Hewen"
 
 import itertools
 import scipy.sparse
+import numpy as np
 
 def FlattenList(List):
     '''
@@ -21,18 +22,27 @@ def FlattenList(List):
             return FlattenList(List)
     return list(List)
 
-def CombineSparseMatricesRowWise(MainMatrix, AddedMatrix):
+def CombineSparseMatricesRowWise(MainMatrix, AddedMatrix, RemoveFirstZerosRow = True):
     '''
     Stack two scipy sparse matrices vertically (row wise). Will initialize the main matrix to be two dimensional csr_matrix with all zero elements if the main matrix is empty.
+    You can use .toarray() to convert final result to numpy array(not a sparse matrix)
+    You must make sure MainMatrix and AddedMatrix have appropriate dimensions, i.e. have same number of columns.
     
     :param SparseMatrix MainMatrix: The main matrix that you want to add the AddedMatrix.
     :param SparseMatrix AddedMatrix: The matrix added followed by the main matrix.
+    :param Boolean RemoveFirstZerosRow: When MainMatrix is empty, this method will automatically add a row with all zeros in the first row of MainMatirx. When this is True, Result will auto remove the first all zeros row when returns. Otherwise you need to manually do it.
     :return: Result: The result of Stack sparse matrices vertically (row wise).
     :rtype: SparseMatrix
     '''
-    if MainMatrix.size == 0:
+    MainMatrixInitialShape = MainMatrix.shape[0]
+    if MainMatrixInitialShape == 0:
         MainMatrix = scipy.sparse.csr_matrix([np.zeros(AddedMatrix.shape[1], dtype = int)])
-    Result = scipy.sparse.vstack([MainMatrix, AddedMatrix])
+    elif MainMatrixInitialShape == 1:#Need to do this conversion otherwise will return error
+        MainMatrix = scipy.sparse.csr_matrix([MainMatrix[0]])
+
+    Result = scipy.sparse.vstack([MainMatrix, AddedMatrix], format = "csr")
+    if MainMatrixInitialShape == 0 and RemoveFirstZerosRow:
+        Result = Result[1:]
 
     return Result
 

@@ -1,3 +1,10 @@
+## [0.1.3] - 2016-11-07
+### Fixed
+- Fixed logic for CombineSparseMatricesRowWise in DataStructureOperations.py.
+- Fixed small bugs for ExportNpArray in IO.py.
+### Added
+- Added Test.py to do informal small tests.
+
 ## [0.1.2] - 2016-10-21
 ### Fixed
 - Fixed small bugs for ExportToJson in IO.py.
