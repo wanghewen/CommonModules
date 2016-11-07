@@ -34,14 +34,15 @@ def CombineSparseMatricesRowWise(MainMatrix, AddedMatrix, RemoveFirstZerosRow = 
     :return: Result: The result of Stack sparse matrices vertically (row wise).
     :rtype: SparseMatrix
     '''
+    MainMatrixInitialSize = MainMatrix.size
     MainMatrixInitialShape = MainMatrix.shape[0]
-    if MainMatrixInitialShape == 0:
+    if MainMatrixInitialSize == 0:
         MainMatrix = scipy.sparse.csr_matrix([np.zeros(AddedMatrix.shape[1], dtype = int)])
     elif MainMatrixInitialShape == 1:#Need to do this conversion otherwise will return error
         MainMatrix = scipy.sparse.csr_matrix([MainMatrix[0]])
 
     Result = scipy.sparse.vstack([MainMatrix, AddedMatrix], format = "csr")
-    if MainMatrixInitialShape == 0 and RemoveFirstZerosRow:
+    if MainMatrixInitialSize == 0 and RemoveFirstZerosRow:
         Result = Result[1:]
 
     return Result
