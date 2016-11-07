@@ -1,3 +1,7 @@
+## [0.1.4] - 2016-11-07
+### Fixed
+- Fixed logic for CombineSparseMatricesRowWise in DataStructureOperations.py.
+
 ## [0.1.3] - 2016-11-07
 ### Fixed
 - Fixed logic for CombineSparseMatricesRowWise in DataStructureOperations.py.
