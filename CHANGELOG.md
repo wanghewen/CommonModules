@@ -1,3 +1,8 @@
+## [0.1.6] - 2016-11-09
+### Added
+- Added TimeElapsed function in Utilities.py.
+- Added CombineMatricesRowWise function in DataStructureOperations.py.
+
 ## [0.1.5] - 2016-11-07
 ### Fixed
 - Fixed logic for CombineSparseMatricesRowWise in DataStructureOperations.py.
