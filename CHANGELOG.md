@@ -1,4 +1,9 @@
 ## [0.1.6] - 2016-11-09
+### Fixed
+- Fixed Bug for Importing Pickle files.
+- Fixed Bug for CombineSparseMatricesRowWise.
+
+## [0.1.6] - 2016-11-09
 ### Added
 - Added TimeElapsed function in Utilities.py.
 - Added CombineMatricesRowWise function in DataStructureOperations.py.

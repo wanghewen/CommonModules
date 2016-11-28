@@ -68,7 +68,7 @@ def CombineSparseMatricesRowWise(MainMatrix, AddedMatrix, RemoveFirstZerosRow = 
     :return: Result: The result of Stacking sparse matrices vertically (row wise).
     :rtype: SparseMatrix
     '''
-    CombineMatricesRowWise(MainMatrix, AddedMatrix, RemoveFirstZerosRow, Sparse = True)
+    return CombineMatricesRowWise(MainMatrix, AddedMatrix, RemoveFirstZerosRow, Sparse = True)
 
 def DeleteLilMatrixRow(mat, i):
     '''

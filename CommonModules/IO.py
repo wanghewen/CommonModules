@@ -187,8 +187,8 @@ def ExportToPkl(AbsolutePath,Content):
         Content = list(Content)
     #if(isinstance(Content, collections.defaultdict)):
     #    Content = dict(Content)
-    with open(AbsolutePath, "wb") as f:
-        pickle.dump(Content, f)
+    with open(AbsolutePath, "wb") as fd:
+        pickle.dump(Content, fd)
 
 def ImportFromPkl(AbsolutePath):
     '''
@@ -198,9 +198,9 @@ def ImportFromPkl(AbsolutePath):
     :return: Content: Content in the pickle file
     :rtype: Variant
     '''    
-    with open(AbsolutePath,"rb") as File:
-        Content = pickle.load(File)
-
+    with open(AbsolutePath,"rb") as fd:
+        Content = pickle.load(fd)
+    return Content
 
 def ExportToJsonNodeLinkData(AbsolutePath,GraphContent):
     '''
