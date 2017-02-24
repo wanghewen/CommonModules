@@ -12,13 +12,14 @@ import networkx as nx
 from networkx.readwrite import json_graph
 import numpy as np
 import scipy.io
+import zipfile
 
 def ListApkFiles(ApkDirectory):
     '''
 Get the Apk file names for an ApkDirectory in a sorted order. Rerurn an empty list if ApkDirectory=="".
 
-:param String ApkDirectory: absolute path of a apk file directory
-:return: ListOfApkFiles: The list of absolute paths of Apks under ApkDirectory
+:param String ApkDirectory: Path of a apk file directory
+:return: ListOfApkFiles: The list of Paths of Apks under ApkDirectory
 :rtype: List[String]
     '''
     ListOfApkFiles=[]
@@ -27,21 +28,21 @@ Get the Apk file names for an ApkDirectory in a sorted order. Rerurn an empty li
     filenames = os.listdir(ApkDirectory)
     for filename in filenames:
         #list filenames 
-        #get the absolute path for the files
-        AbsolutePath=os.path.abspath(os.path.join(ApkDirectory, filename))
-        #get the absolute path for the files
+        #get the Path for the files
+        Path=os.path.abspath(os.path.join(ApkDirectory, filename))
+        #get the Path for the files
         if os.path.splitext(filename)[1]==".apk":
-            if os.path.isfile(AbsolutePath):
-                ListOfApkFiles.append(AbsolutePath)
+            if os.path.isfile(Path):
+                ListOfApkFiles.append(Path)
     return sorted(ListOfApkFiles)
 
 def ListFiles(Directory, Extension):
     '''
     Given an extension, get the file names for a Directory in a sorted order. Rerurn an empty list if Directory == "".
 
-    :param String Directory: absolute path of a file directory
-    :param String Extension: Extension of the files you want. Better include "." in the Extension
-    :return: ListOfFiles: The list of absolute paths of the files you want under Directory
+    :param String/List Directory: Path/Paths of a file directory
+    :param String Extension: Extension of the files you want. Better include "." in the Extension. Use "." to list all files.
+    :return: ListOfFiles: The list of Paths of the files you want under Directory
     :rtype: List[String]
     '''
     ListOfFiles=[]
@@ -60,31 +61,31 @@ def ListFiles(Directory, Extension):
                 filenames = os.listdir(Directory)
                 for filename in filenames:
                     #list filenames 
-                    #get the absolute path for the files
-                    AbsolutePath=os.path.abspath(os.path.join(Directory, filename))
-                    #get the absolute path for the files
-                    if os.path.splitext(filename)[1]==Extension:
-                        if os.path.isfile(AbsolutePath):
-                            ListOfFiles.append(AbsolutePath)
+                    #get the Path for the files
+                    Path=os.path.abspath(os.path.join(Directory, filename))
+                    #get the Path for the files
+                    if os.path.splitext(filename)[1]==Extension or Extension == ".":
+                        if os.path.isfile(Path):
+                            ListOfFiles.append(Path)
     else:
         filenames = os.listdir(Directory)
         for filename in filenames:
             #list filenames 
-            #get the absolute path for the files
-            AbsolutePath=os.path.abspath(os.path.join(Directory, filename))
-            #get the absolute path for the files
+            #get the Path for the files
+            Path=os.path.abspath(os.path.join(Directory, filename))
+            #get the Path for the files
             if os.path.splitext(filename)[1]==Extension:
-                if os.path.isfile(AbsolutePath):
-                    ListOfFiles.append(AbsolutePath)
+                if os.path.isfile(Path):
+                    ListOfFiles.append(Path)
     return sorted(ListOfFiles)
 
 def ListAllFiles(Directory, Extension):
     '''
     Given an extension, get the file names for a Directory and all its sub-directories in a sorted order. Rerurn an empty list if Directory == "".
 
-    :param String Directory: absolute path of a file directory
-    :param String Extension: Extension of the files you want. Better include "." in the Extension
-    :return: ListOfFiles: The list of absolute paths of the files you want under Directory
+    :param String Directory: Path of a file directory
+    :param String Extension: Extension of the files you want. Better include "." in the Extension. Use "." to list all files.
+    :return: ListOfFiles: The list of Paths of the files you want under Directory
     :rtype: List[String]
     '''
     ListOfFiles=[]
@@ -100,20 +101,20 @@ def ListAllFiles(Directory, Extension):
     for root, dirs, files in os.walk(Directory):
         for filename in files:
             #list filenames 
-            #get the absolute path for the files
-            AbsolutePath = os.path.join(root, filename)
-            #get the absolute path for the files
-            if os.path.splitext(filename)[1] == Extension:
-                if os.path.isfile(AbsolutePath):
-                    ListOfFiles.append(AbsolutePath)
+            #get the Path for the files
+            Path = os.path.join(root, filename)
+            #get the Path for the files
+            if os.path.splitext(filename)[1] == Extension or Extension == ".":
+                if os.path.isfile(Path):
+                    ListOfFiles.append(Path)
     return sorted(ListOfFiles)
 
 def ListDirs(Directory):
     '''
     Get all sub-directory paths for a Directory in a sorted order. Rerurn an empty list if Directory == "". Modified from ListFiles(which means variable names remain the same...)
 
-    :param String Directory: absolute path of a file directory
-    :return: ListOfFiles: The list of absolute paths of the sub-directories you want under the Directory
+    :param String Directory: Path of a file directory
+    :return: ListOfFiles: The list of Paths of the sub-directories you want under the Directory
     :rtype: List[String]
     '''
     ListOfFiles=[]
@@ -124,11 +125,11 @@ def ListDirs(Directory):
     filenames = os.listdir(Directory)
     for filename in filenames:
         #list filenames 
-        #get the absolute path for the files
-        AbsolutePath=os.path.abspath(os.path.join(Directory, filename))
-        #get the absolute path for the files
-        if os.path.isdir(AbsolutePath):
-            ListOfFiles.append(AbsolutePath)
+        #get the Path for the files
+        Path=os.path.abspath(os.path.join(Directory, filename))
+        #get the Path for the files
+        if os.path.isdir(Path):
+            ListOfFiles.append(Path)
     return sorted(ListOfFiles)
     
     
@@ -136,7 +137,7 @@ def FileExist(FilePath):
     '''
     Given file path, determine a file exist or not.
 
-    :param String FilePath: absolute path of a file or directory
+    :param String FilePath: Path of a file or directory
     :rtype: Boolean
     '''
     if os.path.exists(FilePath)==True:
@@ -151,7 +152,7 @@ def RemoveDirectory(Folder):
     '''
     Given Folder path, remove this folder(include all content inside).
 
-    :param String Folder: absolute path of a directory
+    :param String Folder: Path of a directory
     :rtype: Boolean
     '''
     if(FileExist(Folder) == False):
@@ -159,139 +160,186 @@ def RemoveDirectory(Folder):
     else:
         shutil.rmtree(Folder)
 
-def ExportToJson(AbsolutePath, Content):
+def ExportToJson(Path, Content):
     '''
     Export something to json file. 
     Will automatic convert Set content into List.
 
-    :param String AbsolutePath: absolute path to store the json file
+    :param String Path: Path to store the json file
     :param Variant Content: something you want to export
     '''
     if(isinstance(Content,set)):
         Content = list(Content)
     #if(isinstance(Content, collections.defaultdict)):
     #    Content = dict(Content)
-    with open(AbsolutePath, "w", encoding = "utf8") as f:
+    with open(Path, "w", encoding = "utf8") as f:
         json.dump(Content, f, indent=4)
 
 
-def ExportToPkl(AbsolutePath,Content):
+def ExportToPkl(Path,Content):
     '''
     Export something to pickle file. 
     Will automatic convert Set content into List.
 
-    :param String AbsolutePath: absolute path to store the json file
+    :param String Path: Path to store the json file
     :param Variant Content: something you want to export
     '''
     if(isinstance(Content, set)):
         Content = list(Content)
     #if(isinstance(Content, collections.defaultdict)):
     #    Content = dict(Content)
-    with open(AbsolutePath, "wb") as fd:
+    with open(Path, "wb") as fd:
         pickle.dump(Content, fd)
 
-def ImportFromPkl(AbsolutePath):
+def ImportFromPkl(Path):
     '''
     Import something from pickle file. 
 
-    :param String AbsolutePath: absolute path of the pickle file
+    :param String Path: Path of the pickle file
     :return: Content: Content in the pickle file
     :rtype: Variant
     '''    
-    with open(AbsolutePath,"rb") as fd:
+    with open(Path,"rb") as fd:
         Content = pickle.load(fd)
     return Content
 
-def ExportToJsonNodeLinkData(AbsolutePath,GraphContent):
+def ExportToJsonNodeLinkData(Path,GraphContent):
     '''
     Export graph node link date to json file. 
 
-    :param String AbsolutePath: absolute path to store the json file
+    :param String Path: Path to store the json file
     :param nxGraph GraphContent: some graph you want to export
     '''    
-    with open(AbsolutePath,"wb") as f:
+    with open(Path,"wb") as f:
         Content=json_graph.node_link_data(GraphContent)
         json.dump(Content, f, indent=4)
 
 
-def ExportToGML(AbsolutePath, GraphContent):
+def ExportToGML(Path, GraphContent):
     '''
     Export graph node link date to json file. 
 
-    :param String AbsolutePath: absolute path to store the json file
+    :param String Path: Path to store the json file
     :param nxGraph GraphContent: some graph you want to export
     '''    
-    nx.write_gml(GraphContent, AbsolutePath)
+    nx.write_gml(GraphContent, Path)
 
 
-def ImportFromJsonNodeLinkData(AbsolutePath):
+def ImportFromJsonNodeLinkData(Path):
     '''
     Import graph node link date from json file.
 
-    :param String AbsolutePath: absolute path of the json file
+    :param String Path: Path of the json file
     :return: GraphContent: Graph content in the json file
     :rtype: nxGraph
     '''    
-    with open(AbsolutePath,"rb") as f:
+    with open(Path,"rb") as f:
         Content=json.load(f)
         GraphContent=json_graph.node_link_graph(Content)
 
         return GraphContent
 
-def ImportFromJson(AbsolutePath):
+def ImportFromJson(Path):
     '''
     Import something from json file. 
 
-    :param String AbsolutePath: absolute path of the json file
+    :param String Path: Path of the json file
     :return: Content: Content in the json file
     :rtype: Variant
     '''    
-    with open(AbsolutePath,"r") as File:
+    with open(Path,"r") as File:
         Content=json.load(File, encoding = "utf-8")
         return Content
-def ExportNpArray(AbsolutePath, NpArray, Format = "%f"):
+def ExportNpArray(Path, NpArray, Format = "%f"):
     '''
     Export a Numpy array to a file.
     
-    :param String AbsolutePath: The stored file location.
+    :param String Path: The stored file location.
     :param numpy.array NpArray: The Numpy array you want to store.
     :param String Format: How to print each element, e.g. %i, %10.5f
     '''
 
-    np.savetxt(AbsolutePath, NpArray, fmt = Format)
+    np.savetxt(Path, NpArray, fmt = Format)
 
-def ImportNpArray(AbsolutePath, DataType, ndmin = 0):
+def ImportNpArray(Path, DataType, ndmin = 0):
     '''
     Import a Numpy array from a file.
     
-    :param String AbsolutePath: The stored file location.
+    :param String Path: The stored file location.
     :param data-type DataType: How to match each element, e.g. int, float
     :param int ndmin: How many dimensions of array at least you will have.
     :return: NpArray: NpArray in the file
     :rtype: NpArray
     '''
-    NpArray = np.loadtxt(AbsolutePath, dtype = DataType, ndmin = ndmin)
+    NpArray = np.loadtxt(Path, dtype = DataType, ndmin = ndmin)
     return NpArray
 
-def ExportSparseMatrix(AbsolutePath, SparseMatrix):
+def ExportSparseMatrix(Path, SparseMatrix):
     '''
     Export a scipy sparse matrix to a file using matrix market format.
     Please refer to http://math.nist.gov/MatrixMarket/formats.html for more information about this format.
     
-    :param String AbsolutePath: The stored file location.
+    :param String Path: The stored file location.
     :param scipy sparse matrix SparseMatrix: The scipy sparse matrix you want to store.
     '''
-    with open(AbsolutePath, "wb+") as File:
+    with open(Path, "wb+") as File:
         scipy.io.mmwrite(File, SparseMatrix)
 
-def ImportSparseMatrix(AbsolutePath):
+def ImportSparseMatrix(Path):
     '''
     Import a scipy sparse matrix from a file using matrix market format.
     
-    :param String AbsolutePath: The stored file location.
+    :param String Path: The stored file location.
     :return: SparseMatrix: (converted) scipy csr_matrix in the file
     :rtype: Scipy Sparse Matrix
     '''
-    SparseMatrix = scipy.io.mmread(AbsolutePath)
+    SparseMatrix = scipy.io.mmread(Path)
     SparseMatrix = SparseMatrix.tocsr()
     return SparseMatrix
+
+def CompressFiles(Paths, CompressedFilePath, Format = "zip"):
+    '''
+    Compress files into a (zip) file.
+    
+    :param List Paths: Paths of the files you want to compress. These paths will be under the root of the compressed file.(You may want to use ListFiles to pass in all paths)
+    :param String CompressedFilePath: Path of the compressed file you want to store.
+    :param String Format: The format of the compressed file.
+    '''
+    if Format == "zip":        
+        CompressedFile = zipfile.ZipFile(CompressedFilePath, "w", compression = zipfile.ZIP_DEFLATED)
+        for Path in Paths:
+            parent_folder = os.path.dirname(Path)
+            if os.path.isdir(Path):
+                for root, folders, files in os.walk(Path):
+                    # Include all subfolders, including empty ones.
+                    for folder_name in folders:
+                        absolute_path = os.path.join(root, folder_name)
+                        relative_path = absolute_path.replace(parent_folder, '')
+                        CompressedFile.write(absolute_path, relative_path)
+                    for file_name in files:
+                        absolute_path = os.path.join(root, file_name)
+                        relative_path = absolute_path.replace(parent_folder, '')
+                        CompressedFile.write(absolute_path, relative_path)
+            else:
+                relative_path = os.path.split(Path)[-1]
+                CompressedFile.write(Path, relative_path)
+        CompressedFile.close()
+    else:
+        raise NotImplementedError
+
+
+def DecompressFiles(Paths, TargetFolder, Format = "zip"):
+    '''
+    Decompress files from a (zip) file/files.
+    
+    :param List Paths: Paths of the files you want to decompress. 
+    :param String TargetFolder: Path of the decompressed files you want to store.
+    :param String Format: The format of the compressed file.
+    '''
+    if Format == "zip":        
+        for Path in Paths:
+            CompressedFile = zipfile.ZipFile(Path, "r")
+            CompressedFile.extractall(TargetFolder)
+            CompressedFile.close()
+    else:
+        raise NotImplementedError

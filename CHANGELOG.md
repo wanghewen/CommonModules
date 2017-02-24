@@ -1,4 +1,19 @@
-## [0.1.6] - 2016-11-09
+## [0.1.10] - 2017-02-24
+### Added
+Added DecompressFiles function
+
+## [0.1.9] - 2017-02-16
+### Fixed
+Fixed a small bug for CompressFiles function
+
+## [0.1.8] - 2017-02-16
+### Changed
+- Changed all variables named AbsolutePath to Path
+- Changed function for listing files
+### Added
+- Added CompressFiles function
+
+## [0.1.7] - 2016-11-09
 ### Fixed
 - Fixed Bug for Importing Pickle files.
 - Fixed Bug for CombineSparseMatricesRowWise.
