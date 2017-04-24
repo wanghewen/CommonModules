@@ -1,3 +1,7 @@
+## [0.1.11] - 2017-04-24
+### Added
+Added CopyFolderStructure function
+
 ## [0.1.10] - 2017-02-24
 ### Added
 Added DecompressFiles function

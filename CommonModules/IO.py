@@ -132,7 +132,17 @@ def ListDirs(Directory):
             ListOfFiles.append(Path)
     return sorted(ListOfFiles)
     
-    
+def CopyFolderStructure(SourceFolder, DestinationFolder):
+    '''
+    Copy a folder structure without copying any of the files inside of it.
+
+    :param String Directory: Path of the source folder
+    :param String Directory: Path of the destination folder that the source folder structure will be copied in
+    '''
+    ListOfFolders = ListDirs(SourceFolder)
+    for Folder in ListOfFolders:
+        os.makedirs(os.path.join(DestinationFolder, os.path.split(SourceFolder)[-1], os.path.relpath(Folder, SourceFolder)), exist_ok = True)
+
 def FileExist(FilePath):
     '''
     Given file path, determine a file exist or not.
