@@ -36,12 +36,13 @@ Get the Apk file names for an ApkDirectory in a sorted order. Rerurn an empty li
                 ListOfApkFiles.append(Path)
     return sorted(ListOfApkFiles)
 
-def ListFiles(Directory, Extension):
+def ListFiles(Directory, Extension, All = False):
     '''
     Given an extension, get the file names for a Directory in a sorted order. Rerurn an empty list if Directory == "".
 
     :param String/List Directory: Path/Paths of a file directory
-    :param String Extension: Extension of the files you want. Better include "." in the Extension. Use "." to list all files.
+    :param String Extension: Extension of the files you want. Better include "." in the Extension. Use "." to list all files. Use ""(empty string) to list all folders.
+    :param Boolean All: Whether to include all files in sub-directories
     :return: ListOfFiles: The list of Paths of the files you want under Directory
     :rtype: List[String]
     '''
@@ -57,34 +58,49 @@ def ListFiles(Directory, Extension):
             Extension = "." + Extension
     if type(Directory) == list:
         Directories = Directory
-        for Directory in Directories:
-                filenames = os.listdir(Directory)
-                for filename in filenames:
-                    #list filenames 
-                    #get the Path for the files
-                    Path=os.path.abspath(os.path.join(Directory, filename))
-                    #get the Path for the files
+        if All:
+            for Directory in Directories:
+                ListOfFiles.extend(_ListAllFiles(Directory, Extension))
+        else:
+            for Directory in Directories:
+                    filenames = os.listdir(Directory)
+                    for filename in filenames:
+                        #list filenames 
+                        #get the Path for the files
+                        Path=os.path.abspath(os.path.join(Directory, filename))
+                        #get the Path for the files
+                        if Extension == "": #Need to get all folders instead of files
+                            if os.path.isdir(Path):
+                                ListOfFiles.append(Path)
+                        else:
+                            if os.path.splitext(filename)[1]==Extension or Extension == ".":
+                                if os.path.isfile(Path):
+                                    ListOfFiles.append(Path)
+    else:
+        if All:
+            ListOfFiles = _ListAllFiles(Directory, Extension)
+        else:
+            filenames = os.listdir(Directory)
+            for filename in filenames:
+                #list filenames 
+                #get the Path for the files
+                Path=os.path.abspath(os.path.join(Directory, filename))
+                #get the Path for the files
+                if Extension == "": #Need to get all folders instead of files
+                    if os.path.isdir(Path):
+                        ListOfFiles.append(Path)
+                else:
                     if os.path.splitext(filename)[1]==Extension or Extension == ".":
                         if os.path.isfile(Path):
                             ListOfFiles.append(Path)
-    else:
-        filenames = os.listdir(Directory)
-        for filename in filenames:
-            #list filenames 
-            #get the Path for the files
-            Path=os.path.abspath(os.path.join(Directory, filename))
-            #get the Path for the files
-            if os.path.splitext(filename)[1]==Extension:
-                if os.path.isfile(Path):
-                    ListOfFiles.append(Path)
     return sorted(ListOfFiles)
 
-def ListAllFiles(Directory, Extension):
+def _ListAllFiles(Directory, Extension):
     '''
     Given an extension, get the file names for a Directory and all its sub-directories in a sorted order. Rerurn an empty list if Directory == "".
 
     :param String Directory: Path of a file directory
-    :param String Extension: Extension of the files you want. Better include "." in the Extension. Use "." to list all files.
+    :param String Extension: Extension of the files you want. Better include "." in the Extension. Use "." to list all files. Use ""(empty string) to list all folders.
     :return: ListOfFiles: The list of Paths of the files you want under Directory
     :rtype: List[String]
     '''
@@ -99,38 +115,21 @@ def ListAllFiles(Directory, Extension):
         if(Extension[0] != "."):
             Extension = "." + Extension
     for root, dirs, files in os.walk(Directory):
-        for filename in files:
-            #list filenames 
-            #get the Path for the files
-            Path = os.path.join(root, filename)
-            #get the Path for the files
-            if os.path.splitext(filename)[1] == Extension or Extension == ".":
-                if os.path.isfile(Path):
-                    ListOfFiles.append(Path)
+        if Extension == "":#Need to get all folders instead of files
+            ListOfFiles.append(os.path.abspath(root))
+        else:
+            for filename in files:
+                #list filenames 
+                #get the Path for the files
+                Path = os.path.abspath(os.path.join(root, filename))
+                #get the Path for the files
+                if os.path.splitext(filename)[1] == Extension or Extension == ".":
+                    if os.path.isfile(Path):
+                        ListOfFiles.append(Path)
+    if Extension == "":
+        ListOfFiles = ListOfFiles[1:] #Remove Directory in the list since the list contains the path of Directory itself
     return sorted(ListOfFiles)
 
-def ListDirs(Directory):
-    '''
-    Get all sub-directory paths for a Directory in a sorted order. Rerurn an empty list if Directory == "". Modified from ListFiles(which means variable names remain the same...)
-
-    :param String Directory: Path of a file directory
-    :return: ListOfFiles: The list of Paths of the sub-directories you want under the Directory
-    :rtype: List[String]
-    '''
-    ListOfFiles=[]
-    if(Directory == ""):
-        raise ValueError(Directory, 'Directory is empty!')
-    if(os.path.isdir(Directory) == False):
-        raise ValueError(Directory, 'Directory is not a directory!')
-    filenames = os.listdir(Directory)
-    for filename in filenames:
-        #list filenames 
-        #get the Path for the files
-        Path=os.path.abspath(os.path.join(Directory, filename))
-        #get the Path for the files
-        if os.path.isdir(Path):
-            ListOfFiles.append(Path)
-    return sorted(ListOfFiles)
     
 def CopyFolderStructure(SourceFolder, DestinationFolder):
     '''
@@ -139,7 +138,7 @@ def CopyFolderStructure(SourceFolder, DestinationFolder):
     :param String Directory: Path of the source folder
     :param String Directory: Path of the destination folder that the source folder structure will be copied in
     '''
-    ListOfFolders = ListDirs(SourceFolder)
+    ListOfFolders = ListFiles(SourceFolder, "", All = True)
     for Folder in ListOfFolders:
         os.makedirs(os.path.join(DestinationFolder, os.path.split(SourceFolder)[-1], os.path.relpath(Folder, SourceFolder)), exist_ok = True)
 
