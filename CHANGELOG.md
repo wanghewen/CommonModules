@@ -1,3 +1,7 @@
+## [0.1.13] - 2017-02-24
+### Added
+Added optional dependencies for installing the package
+
 ## [0.1.10] - 2017-02-24
 ### Added
 Added DecompressFiles function
