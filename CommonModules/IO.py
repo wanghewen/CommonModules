@@ -131,16 +131,22 @@ def _ListAllFiles(Directory, Extension):
     return sorted(ListOfFiles)
 
     
-def CopyFolderStructure(SourceFolder, DestinationFolder):
+def CopyFolderStructure(SourceFolder, DestinationFolder, Root = False):
     '''
     Copy a folder structure without copying any of the files inside of it.
 
     :param String Directory: Path of the source folder
-    :param String Directory: Path of the destination folder that the source folder structure will be copied in
+    :param String Directory: Path of the destination folder that the source folder structure will be copied
+    :param Boolean Root: DestinationAsRoot. If this is True, the DestinationFolder will be ragarded as a folder of the same level of SourceFolder, otherwise SourceFolder will be copied into the DestinationFolder
     '''
     ListOfFolders = ListFiles(SourceFolder, "", All = True)
-    for Folder in ListOfFolders:
-        os.makedirs(os.path.join(DestinationFolder, os.path.split(SourceFolder)[-1], os.path.relpath(Folder, SourceFolder)), exist_ok = True)
+    os.makedirs(DestinationFolder, exist_ok = True)
+    if Root is False:
+        for Folder in ListOfFolders:
+            os.makedirs(os.path.join(DestinationFolder, os.path.split(SourceFolder)[-1], os.path.relpath(Folder, SourceFolder)), exist_ok = True)
+    else:
+        for Folder in ListOfFolders:
+            os.makedirs(os.path.join(DestinationFolder, os.path.relpath(Folder, SourceFolder)), exist_ok = True)
 
 def FileExist(FilePath):
     '''
