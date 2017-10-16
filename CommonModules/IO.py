@@ -8,11 +8,17 @@ import os
 import shutil
 import json
 import pickle
-import networkx as nx
-from networkx.readwrite import json_graph
-import numpy as np
-import scipy.io
 import zipfile
+
+DependencyFlag = False #Check if dependencies are satisfied. If not, some advanced functions will not be defined.
+try:
+    import networkx as nx
+    from networkx.readwrite import json_graph
+    import numpy as np
+    import scipy.io
+    DependencyFlag = True
+except Exception:
+    DependencyFlag = False
 
 def ListApkFiles(ApkDirectory):
     '''
@@ -218,41 +224,6 @@ def ImportFromPkl(Path):
         Content = pickle.load(fd)
     return Content
 
-def ExportToJsonNodeLinkData(Path,GraphContent):
-    '''
-    Export graph node link date to json file. 
-
-    :param String Path: Path to store the json file
-    :param nxGraph GraphContent: some graph you want to export
-    '''    
-    with open(Path,"wb") as f:
-        Content=json_graph.node_link_data(GraphContent)
-        json.dump(Content, f, indent=4)
-
-
-def ExportToGML(Path, GraphContent):
-    '''
-    Export graph node link date to json file. 
-
-    :param String Path: Path to store the json file
-    :param nxGraph GraphContent: some graph you want to export
-    '''    
-    nx.write_gml(GraphContent, Path)
-
-
-def ImportFromJsonNodeLinkData(Path):
-    '''
-    Import graph node link date from json file.
-
-    :param String Path: Path of the json file
-    :return: GraphContent: Graph content in the json file
-    :rtype: nxGraph
-    '''    
-    with open(Path,"rb") as f:
-        Content=json.load(f)
-        GraphContent=json_graph.node_link_graph(Content)
-
-        return GraphContent
 
 def ImportFromJson(Path):
     '''
@@ -265,52 +236,7 @@ def ImportFromJson(Path):
     with open(Path,"r") as File:
         Content=json.load(File, encoding = "utf-8")
         return Content
-def ExportNpArray(Path, NpArray, Format = "%f"):
-    '''
-    Export a Numpy array to a file.
-    
-    :param String Path: The stored file location.
-    :param numpy.array NpArray: The Numpy array you want to store.
-    :param String Format: How to print each element, e.g. %i, %10.5f
-    '''
 
-    np.savetxt(Path, NpArray, fmt = Format)
-
-def ImportNpArray(Path, DataType, ndmin = 0):
-    '''
-    Import a Numpy array from a file.
-    
-    :param String Path: The stored file location.
-    :param data-type DataType: How to match each element, e.g. int, float
-    :param int ndmin: How many dimensions of array at least you will have.
-    :return: NpArray: NpArray in the file
-    :rtype: NpArray
-    '''
-    NpArray = np.loadtxt(Path, dtype = DataType, ndmin = ndmin)
-    return NpArray
-
-def ExportSparseMatrix(Path, SparseMatrix):
-    '''
-    Export a scipy sparse matrix to a file using matrix market format.
-    Please refer to http://math.nist.gov/MatrixMarket/formats.html for more information about this format.
-    
-    :param String Path: The stored file location.
-    :param scipy sparse matrix SparseMatrix: The scipy sparse matrix you want to store.
-    '''
-    with open(Path, "wb+") as File:
-        scipy.io.mmwrite(File, SparseMatrix)
-
-def ImportSparseMatrix(Path):
-    '''
-    Import a scipy sparse matrix from a file using matrix market format.
-    
-    :param String Path: The stored file location.
-    :return: SparseMatrix: (converted) scipy csr_matrix in the file
-    :rtype: Scipy Sparse Matrix
-    '''
-    SparseMatrix = scipy.io.mmread(Path)
-    SparseMatrix = SparseMatrix.tocsr()
-    return SparseMatrix
 
 def CompressFiles(Paths, CompressedFilePath, Format = "zip"):
     '''
@@ -358,3 +284,87 @@ def DecompressFiles(Paths, TargetFolder, Format = "zip"):
             CompressedFile.close()
     else:
         raise NotImplementedError
+
+if DependencyFlag:
+    def ExportToJsonNodeLinkData(Path,GraphContent):
+        '''
+        Export graph node link date to json file. 
+
+        :param String Path: Path to store the json file
+        :param nxGraph GraphContent: some graph you want to export
+        '''    
+        with open(Path,"wb") as f:
+            Content=json_graph.node_link_data(GraphContent)
+            json.dump(Content, f, indent=4)
+
+
+    def ExportToGML(Path, GraphContent):
+        '''
+        Export graph node link date to json file. 
+
+        :param String Path: Path to store the json file
+        :param nxGraph GraphContent: some graph you want to export
+        '''    
+        nx.write_gml(GraphContent, Path)
+
+
+    def ImportFromJsonNodeLinkData(Path):
+        '''
+        Import graph node link date from json file.
+
+        :param String Path: Path of the json file
+        :return: GraphContent: Graph content in the json file
+        :rtype: nxGraph
+        '''    
+        with open(Path,"rb") as f:
+            Content=json.load(f)
+            GraphContent=json_graph.node_link_graph(Content)
+
+            return GraphContent
+
+    def ExportNpArray(Path, NpArray, Format = "%f"):
+        '''
+        Export a Numpy array to a file.
+    
+        :param String Path: The stored file location.
+        :param numpy.array NpArray: The Numpy array you want to store.
+        :param String Format: How to print each element, e.g. %i, %10.5f
+        '''
+
+        np.savetxt(Path, NpArray, fmt = Format)
+
+    def ImportNpArray(Path, DataType, ndmin = 0):
+        '''
+        Import a Numpy array from a file.
+    
+        :param String Path: The stored file location.
+        :param data-type DataType: How to match each element, e.g. int, float
+        :param int ndmin: How many dimensions of array at least you will have.
+        :return: NpArray: NpArray in the file
+        :rtype: NpArray
+        '''
+        NpArray = np.loadtxt(Path, dtype = DataType, ndmin = ndmin)
+        return NpArray
+
+    def ExportSparseMatrix(Path, SparseMatrix):
+        '''
+        Export a scipy sparse matrix to a file using matrix market format.
+        Please refer to http://math.nist.gov/MatrixMarket/formats.html for more information about this format.
+    
+        :param String Path: The stored file location.
+        :param scipy sparse matrix SparseMatrix: The scipy sparse matrix you want to store.
+        '''
+        with open(Path, "wb+") as File:
+            scipy.io.mmwrite(File, SparseMatrix)
+
+    def ImportSparseMatrix(Path):
+        '''
+        Import a scipy sparse matrix from a file using matrix market format.
+    
+        :param String Path: The stored file location.
+        :return: SparseMatrix: (converted) scipy csr_matrix in the file
+        :rtype: Scipy Sparse Matrix
+        '''
+        SparseMatrix = scipy.io.mmread(Path)
+        SparseMatrix = SparseMatrix.tocsr()
+        return SparseMatrix

@@ -1,3 +1,7 @@
+## [0.1.13] - 2017-02-24
+### Added
+- Added optional dependencies for installing the package
+
 ## [0.1.12] - 2017-04-25
 ### Changed
 - Rewrote ListFiles function
