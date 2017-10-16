@@ -1,14 +1,25 @@
 ## [0.1.13] - 2017-02-24
 ### Added
-Added optional dependencies for installing the package
+- Added optional dependencies for installing the package
+
+## [0.1.12] - 2017-04-25
+### Changed
+- Rewrote ListFiles function
+- Changed ListAllFiles to private method _ListAllFiles
+### Removed
+- Removed ListDirs
+
+## [0.1.11] - 2017-04-24
+### Added
+- Added CopyFolderStructure function
 
 ## [0.1.10] - 2017-02-24
 ### Added
-Added DecompressFiles function
+- Added DecompressFiles function
 
 ## [0.1.9] - 2017-02-16
 ### Fixed
-Fixed a small bug for CompressFiles function
+- Fixed a small bug for CompressFiles function
 
 ## [0.1.8] - 2017-02-16
 ### Changed
