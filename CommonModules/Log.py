@@ -1,9 +1,7 @@
 # -*- coding:utf-8 -*-
-""" Provide log related functions. When importing this module, 
-the logging file named LogFile.log will be automatically created in 
-the current working directory.
-You can use from Log import logger to use the logger.
+""" Provide log related functions. You need to Initialize the logger and use the logger to make logs.
 E.g. 
+logger = Initialize()
 logger.error("Pickle data writing Failed.")
 logger.info("Pickle data of " + foo + " written successfully.")  
 """
@@ -12,17 +10,28 @@ __author__ = "Wang Hewen"
 
 import sys
 import logging
-logging.basicConfig(level=logging.DEBUG,filename="LogFile.log",filemode="a",
-                    format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s',
-                    datefmt='%Y/%m/%d %H:%M:%S')
-ErrorHandler = logging.StreamHandler(stream = sys.stderr)
-ErrorHandler.setLevel(logging.ERROR)
-DebugHandler = logging.StreamHandler(stream = sys.stdout)
-DebugHandler.setLevel(logging.DEBUG)
-ErrorHandler.setFormatter(logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'))
-DebugHandler.setFormatter(logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'))
 
-logger = logging.getLogger()
-logger.addHandler(ErrorHandler)
-logger.addHandler(DebugHandler)
+def Initialize(FileName = "LogFile.log", LogLevel = "INFO"):
+    if LogLevel not in ["DEBUG", "INFO", "ERROR"]:
+        raise ValueError("LogLevel is not correctly set.")
+    logging.basicConfig(level = logging.DEBUG, filename = FileName, filemode = "a",
+                        format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s',
+                        datefmt='%Y/%m/%d %H:%M:%S')
+    logger = logging.getLogger()
+    if LogLevel in ["DEBUG"]:
+        DebugHandler = logging.StreamHandler(stream = sys.stdout)
+        DebugHandler.setLevel(logging.DEBUG)
+        DebugHandler.setFormatter(logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'))
+        logger.addHandler(DebugHandler)
+    if LogLevel in ["DEBUG", "INFO"]:
+        InfoHandler = logging.StreamHandler(stream = sys.stdout)
+        InfoHandler.setLevel(logging.INFO)
+        InfoHandler.setFormatter(logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'))
+        logger.addHandler(InfoHandler)
+    if LogLevel in ["DEBUG", "INFO", "ERROR"]:
+        ErrorHandler = logging.StreamHandler(stream = sys.stderr)
+        ErrorHandler.setLevel(logging.ERROR)
+        ErrorHandler.setFormatter(logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s'))
+        logger.addHandler(ErrorHandler)           
 
+    return logger
