@@ -1,4 +1,12 @@
-## [0.1.13] - 2017-02-24
+## [0.1.15] - 2017-02-24
+### Fixed
+- Fixed a loglevel related bug
+
+## [0.1.14] - 2017-02-24
+### Merged
+- Merged different version of CommonModules
+
+## [0.1.13] - 2017-10-14
 ### Added
 - Added optional dependencies for installing the package
 
