@@ -7,7 +7,10 @@ from CommonModules.Utilities import TimeElapsed
 
 CM = CommonModules
 
+logger = CM.Log.Initialize("test.log", WriteToStream = True)
+
 def main():
+    logger.info("test info")
     print(TimeElapsed())
     test_array = np.array([[4,5,6]])
     #test_array = np.array([])

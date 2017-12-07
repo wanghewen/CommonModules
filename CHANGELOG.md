@@ -1,8 +1,12 @@
-## [0.1.15] - 2017-02-24
+## [0.1.16] - 2017-12-07
+### Changed
+- Updated logging related functions
+
+## [0.1.15] - 2017-10-24
 ### Fixed
 - Fixed a loglevel related bug
 
-## [0.1.14] - 2017-02-24
+## [0.1.14] - 2017-10-24
 ### Merged
 - Merged different version of CommonModules
 

@@ -11,3 +11,4 @@
 /gh-pages/
 /documentation
 /dist
+*.suo
