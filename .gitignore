@@ -12,3 +12,4 @@
 /documentation
 /dist
 *.suo
+/docs/_build

@@ -1,3 +1,7 @@
+## [0.1.17] - 2017-12-22
+### Fixed
+- Updated logging related functions' comments
+
 ## [0.1.16] - 2017-12-07
 ### Changed
 - Updated logging related functions

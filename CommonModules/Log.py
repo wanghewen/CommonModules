@@ -12,6 +12,15 @@ import sys
 import logging
 
 def Initialize(FileName = "LogFile.log", LogLevel = "INFO", WriteToStream = False):
+    '''
+Initialize loggers for logging. A logger will be returned.
+
+:param String FileName: Path of the log file
+:param String LogLevel: LogLevel of the logger, which can be "DEBUG", "INFO", "ERROR"
+:param Boolean WriteToStream: Whether to write to stdout
+:return: logger: The logger used for logging
+:rtype: logging.loggger
+    '''
     if LogLevel not in ["DEBUG", "INFO", "ERROR"]:
         raise ValueError("LogLevel is not correctly set.")
     logger = logging.getLogger(__name__) #__name__ == CommonModules.Log
