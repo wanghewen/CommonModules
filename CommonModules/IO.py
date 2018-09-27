@@ -9,6 +9,8 @@ import shutil
 import json
 import pickle
 import zipfile
+import urllib
+import wget
 
 DependencyFlag = False #Check if dependencies are satisfied. If not, some advanced functions will not be defined.
 try:
@@ -284,6 +286,33 @@ def DecompressFiles(Paths, TargetFolder, Format = "zip"):
             CompressedFile.close()
     else:
         raise NotImplementedError
+
+def DownloadFile(URL, Destination = "./download", ExpectedBytes = None, IsFolder = False):
+    """Download a file if not present, and make sure it's the right size."""
+    if IsFolder:
+        if os.path.isdir(Destination):
+            pass
+        else:
+            os.makedirs(Destination)
+
+    Request = urllib.request.Request(URL, method = "HEAD")
+    Headers = dict(urllib.request.urlopen(Request).info().items())
+    if IsFolder:
+        FilePath = os.path.join(Destination, wget.detect_filename(URL, '', Headers))
+    else:
+        FilePath = wget.detect_filename(URL, Destination, Headers)
+
+    if not os.path.exists(FilePath):
+        FileName = wget.download(URL, Destination)
+    StatInfo = os.stat(FileName)
+    if ExpectedBytes is None or StatInfo.st_size == ExpectedBytes:
+        print('Found and verified', FileName)
+    else:
+        print(StatInfo.st_size)
+        raise Exception(
+            'Failed to verify ' + FileName + '. File exists or corrupted. Can you get to it with a browser?')
+    return FileName
+
 
 if DependencyFlag:
     def ExportToJsonNodeLinkData(Path,GraphContent):
