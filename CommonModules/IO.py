@@ -287,9 +287,20 @@ def DecompressFiles(Paths, TargetFolder, Format = "zip"):
     else:
         raise NotImplementedError
 
-def DownloadFile(URL, Destination = "./download", ExpectedBytes = None, IsFolder = False):
-    """Download a file if not present, and make sure it's the right size."""
-    if IsFolder:
+def DownloadFile(URL, Destination = "./download", ExpectedBytes = None, IsDestinationFolder = None):
+    """
+    Download a file if not present, and make sure it's the right size.
+
+    :param String URL: URL of the file you want to download.
+    :param String Destination: Path of the file you want to store, it can be a.
+    :param String Format: The format of the compressed file.
+    """
+    if IsDestinationFolder is None: #Try to indicate from Destination
+        if os.path.basename(Destination).find(".") >= 0:
+            IsDestinationFolder = False
+        else:
+            IsDestinationFolder = True
+    if IsDestinationFolder is True:
         if os.path.isdir(Destination):
             pass
         else:
@@ -297,19 +308,21 @@ def DownloadFile(URL, Destination = "./download", ExpectedBytes = None, IsFolder
 
     Request = urllib.request.Request(URL, method = "HEAD")
     Headers = dict(urllib.request.urlopen(Request).info().items())
-    if IsFolder:
+    if IsDestinationFolder:
         FilePath = os.path.join(Destination, wget.detect_filename(URL, '', Headers))
     else:
         FilePath = wget.detect_filename(URL, Destination, Headers)
 
     if not os.path.exists(FilePath):
         FileName = wget.download(URL, Destination)
+    else:
+        FileName = FilePath
     StatInfo = os.stat(FileName)
     if ExpectedBytes is None or StatInfo.st_size == ExpectedBytes:
         print('Found and verified', FileName)
     else:
         print(StatInfo.st_size)
-        raise Exception(
+        raise FileExistsError(
             'Failed to verify ' + FileName + '. File exists or corrupted. Can you get to it with a browser?')
     return FileName
 
