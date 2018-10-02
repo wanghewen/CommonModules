@@ -1,3 +1,8 @@
+## [0.1.18] - 2018-09-27
+### Added
+- Added download file function
+- Added a few test cases for IO
+
 ## [0.1.17] - 2017-12-22
 ### Fixed
 - Updated logging related functions' comments
