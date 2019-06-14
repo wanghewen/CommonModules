@@ -1,3 +1,7 @@
+## [0.1.19] - 2018-09-27
+### Added
+- Added GetHardDiskUsage function
+
 ## [0.1.18] - 2018-09-27
 ### Added
 - Added download file function

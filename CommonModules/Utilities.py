@@ -3,6 +3,7 @@ __author__ = "Wang Hewen"
 """ Some other functionalities."""
 import datetime
 import time
+import shutil
 
 global CurrentTime
 global StartTime
@@ -76,3 +77,19 @@ def TimeElapsed(Unit = True, LastTime = False):
         return str(TimeInterval) + Unit
     else:
         return TimeInterval
+
+def GetHardDiskUsage(Print = True):
+    '''
+    Use shutil to obtain hard disk usage.
+
+    :param Boolean Print: Whether to use print function to print disk usage on the screen.
+    :return: DiskUsage: A tuple contains total, used and free disk space in bytes.
+    :rtype: Tuple
+    '''
+    total, used, free = shutil.disk_usage("/")
+    if Print:
+        print("Total: %d GB" % (total // (2 ** 30)))
+        print("Used: %d GB" % (used // (2 ** 30)))
+        print("Free: %d GB" % (free // (2 ** 30)))
+
+    return total, used, free
