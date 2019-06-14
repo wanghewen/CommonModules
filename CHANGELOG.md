@@ -1,4 +1,4 @@
-## [0.1.19] - 2018-09-27
+## [0.1.19] - 2019-06-14
 ### Added
 - Added GetHardDiskUsage function
 
