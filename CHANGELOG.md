@@ -1,3 +1,11 @@
+## [0.1.21] - 2019-10-06
+### Changed
+- Modified logging functions such that it closes existing file handlers when initializing
+
+## [0.1.20] - 2019-07-03
+### Added
+- Added GetParentFolders function
+
 ## [0.1.19] - 2019-06-14
 ### Added
 - Added GetHardDiskUsage function

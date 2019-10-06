@@ -24,6 +24,10 @@ Initialize loggers for logging. A logger will be returned.
     if LogLevel not in ["DEBUG", "INFO", "ERROR"]:
         raise ValueError("LogLevel is not correctly set.")
     logger = logging.getLogger(__name__) #__name__ == CommonModules.Log
+    handlers = logger.handlers[:]
+    for handler in handlers:
+        handler.close()
+        logger.removeHandler(handler)
     fileHandler = logging.FileHandler(FileName)
     fileHandler.setFormatter(logging.Formatter('%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s: %(message)s', datefmt = '%Y/%m/%d %H:%M:%S'))
     if LogLevel == "DEBUG":

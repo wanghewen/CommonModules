@@ -4,13 +4,23 @@
 __author__ = "Wang Hewen"
 
 import itertools
-DependencyFlag = False #Check if dependencies are satisfied. If not, some advanced functions will not be defined.
+ScipyDependencyFlag = False #Check if dependencies are satisfied. If not, some advanced functions will not be defined.
+TorchDependencyFlag = False
+
 try:
     import scipy.sparse
     import numpy as np
-    DependencyFlag = True
+    ScipyDependencyFlag = True
 except Exception:
-    DependencyFlag = False
+    ScipyDependencyFlag = False
+
+try:
+    import scipy.sparse
+    import torch
+    import numpy as np
+    TorchDependencyFlag = True
+except Exception:
+    TorchDependencyFlag = False
 
 def FlattenList(List):
     '''
@@ -27,7 +37,7 @@ def FlattenList(List):
             return FlattenList(List)
     return list(List)
 
-if DependencyFlag:
+if ScipyDependencyFlag:
     def CombineMatricesRowWise(MainMatrix, AddedMatrix, RemoveFirstZerosRow = True, Sparse = False):
         '''
         Stack twoe matrices vertically (row wise).
@@ -137,3 +147,39 @@ if DependencyFlag:
             return True
         else:
             return False
+
+if TorchDependencyFlag:
+    def ConvertSparseMatrixToSparseTensor(SparseMatrix, TensorType = torch.sparse.FloatTensor):
+        '''
+        Convert scipy sparse matrix to PyTorch sparse tensor
+        Refer to https://discuss.pytorch.org/t/creating-a-sparse-tensor-from-csr-matrix/13658/5
+        :param SparseMatrix: scipy sparse matrix to be converted
+        :param TensorType: Target PyTorch sparse tensor type.
+        :return: SparseTensor
+        '''
+        CooMatrix = scipy.sparse.coo_matrix(SparseMatrix, copy = False)
+
+        values = CooMatrix.data
+        indices = np.vstack((CooMatrix.row, CooMatrix.col))
+
+        i = torch.LongTensor(indices)
+        v = torch.FloatTensor(values)
+        shape = CooMatrix.shape
+
+        SparseTensor = TensorType(i, v, torch.Size(shape))
+        return SparseTensor
+
+    def SparseDenseElementwiseMultiply(SparseTensor, DenseTensor, TensorType = torch.sparse.FloatTensor):
+        '''
+        Used for PyTorch elementwise sparse tensor and dense tensor multiplication.
+        Refer to https://stackoverflow.com/questions/56880166/how-to-multiply-a-dense-matrix-by-a-sparse-matrix-element-wise-in-pytorch
+        :param SparseTensor: A PyTorch sparse tensor
+        :param DenseTensor: A PyTorch dense tensor
+        :param TensorType: Target PyTorch sparse tensor type.
+        :return: SparseTensor
+        '''
+        i = SparseTensor._indices()
+        v = SparseTensor._values()
+        dv = DenseTensor[i[0, :], i[1, :]]  # get values from relevant entries of dense matrix
+        Result = TensorType(i, v * dv, SparseTensor.size())
+        return Result

@@ -11,6 +11,7 @@ import pickle
 import zipfile
 import urllib
 import wget
+import pathlib
 
 DependencyFlag = False #Check if dependencies are satisfied. If not, some advanced functions will not be defined.
 try:
@@ -137,6 +138,22 @@ def _ListAllFiles(Directory, Extension):
     if Extension == "":
         ListOfFiles = ListOfFiles[1:] #Remove Directory in the list since the list contains the path of Directory itself
     return sorted(ListOfFiles)
+
+def GetParentFolders(FilePath, All = False):
+    '''
+    Use pathlib to get parent folder/list of parent folders of FilePath.
+    :param String FilePath: Path of a file/folder
+    :return: ParentFolder/ParentFolders: String of its parent folder or list of string of its parent folders
+    :rtype: String or List[String]
+    '''
+    path = pathlib.Path(os.path.abspath(FilePath))
+
+    if All:
+        parents = [str(parent) for parent in path.parents]
+        return parents
+    else:
+        parent = str(path.parent)
+        return parent
 
     
 def CopyFolderStructure(SourceFolder, DestinationFolder, Root = False):
