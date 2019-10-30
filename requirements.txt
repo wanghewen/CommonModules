@@ -1,4 +1,0 @@
-scipy
-torch
-numpy
-networkx
