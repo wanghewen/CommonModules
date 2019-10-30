@@ -11,13 +11,13 @@ logger = CM.Log.Initialize("test.log", WriteToStream = True)
 
 def main():
     logger.info("test info")
-    print(TimeElapsed())
-    test_array = np.array([[4,5,6]])
-    #test_array = np.array([])
-    print(CM.DataStructureOperations.CombineMatricesRowWise(test_array, np.array([[1,2,3]])))
-    #CM.IO.ExportNpArray("./test.txt", test_array)
-    print(TimeElapsed(LastTime = True))
-    return
+    # print(TimeElapsed())
+    # test_array = np.array([[4,5,6]])
+    # #test_array = np.array([])
+    # print(CM.DataStructureOperations.CombineMatricesRowWise(test_array, np.array([[1,2,3]])))
+    # #CM.IO.ExportNpArray("./test.txt", test_array)
+    # print(TimeElapsed(LastTime = True))
+    # return
 
 if __name__ == "__main__":
     main()

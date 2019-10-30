@@ -1,3 +1,8 @@
+## [0.1.22] - 2019-10-30
+### Changed
+- Update logging functions to accept multiple message arguments
+- Fixed logging fucntions to correctly display stack positions
+
 ## [0.1.21] - 2019-10-06
 ### Changed
 - Modified logging functions such that it closes existing file handlers when initializing

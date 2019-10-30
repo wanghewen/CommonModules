@@ -13,9 +13,11 @@ You can also use `pip install CommonModules` to install this package.
 
 ## Usage
 
-`import CommonModules as CM
- #List all files under current working directory
- CM.IO.ListFiles(".", ".")`
+ `import CommonModules as CM`
+
+Example: list all files under current working directory
+
+ `CM.IO.ListFiles(".", ".")`
 
 Please refer to **[http://commonmodules.readthedocs.io/en/latest/](http://commonmodules.readthedocs.io/en/latest/)** for more information.  
 
