@@ -1,10 +1,16 @@
 # -*- coding:utf-8 -*-
 """ Provide log related functions. You need to Initialize the logger and use the logger to make logs.
-E.g. 
-logger = Initialize()
-Use logger.level(*msg) to log like:
-logger.error("Pickle data writing Failed.")
-logger.info("Pickle data of ", foo, " written successfully.")
+
+E.g.
+
+>>> logger = Initialize()
+
+Use logger.level(\*msg) to log like:
+
+>>> logger.error("Pickle data writing Failed.")
+
+>>> logger.info("Pickle data of ", foo, " written successfully.")
+
 The log will be stored into LogFile.log by default.
 """
 

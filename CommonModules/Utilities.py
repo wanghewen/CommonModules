@@ -39,6 +39,11 @@ def ConcatenateIntegers(*Integers):
     '''
     Concatenate/Merge integers into one integer. E.g. 10 and 20 to 1020.
 
+    Example::
+
+        >>> ConcatenateIntegers(10, 20, 30)
+        '102030'
+
     :param Integers Integers: Integers to be concatenated.
     :return: Result: Concatenated integer.
     :rtype: Integer
@@ -51,6 +56,14 @@ def ConcatenateIntegers(*Integers):
 def TimeElapsed(Unit = True, LastTime = False):
     '''
     Return the time interval since first/last call of this function.
+
+    Example::
+
+        >>> TimeElapsed()
+        '0.0 sec'
+        >>> ...Some other operations
+        >>> TimeElapsed()
+        '4.70393395423889 sec'
 
     :param Boolean/String Unit: Whether to append unit ' sec'(by default) or other unit when returned. If False, a float number will be returned.
     :param Boolean LastTime: If True return the time interval since the last call of this function, otherwise return the time interval since the first call of this function, e.g. since programming running.
@@ -81,6 +94,15 @@ def TimeElapsed(Unit = True, LastTime = False):
 def GetHardDiskUsage(Print = True):
     '''
     Use shutil to obtain hard disk usage.
+
+    Example::
+
+        >>> GetHardDiskUsage()
+        CM.Utilities.GetHardDiskUsage()
+        Total: 371 GB
+        Used: 341 GB
+        Free: 24 GB
+        (399000969216, 366894043136, 26025852928)
 
     :param Boolean Print: Whether to use print function to print disk usage on the screen.
     :return: DiskUsage: A tuple contains total, used and free disk space in bytes.

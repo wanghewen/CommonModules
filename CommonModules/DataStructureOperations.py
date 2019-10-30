@@ -152,7 +152,9 @@ if TorchDependencyFlag:
     def ConvertSparseMatrixToSparseTensor(SparseMatrix, TensorType = torch.sparse.FloatTensor):
         '''
         Convert scipy sparse matrix to PyTorch sparse tensor
+
         Refer to https://discuss.pytorch.org/t/creating-a-sparse-tensor-from-csr-matrix/13658/5
+
         :param SparseMatrix: scipy sparse matrix to be converted
         :param TensorType: Target PyTorch sparse tensor type.
         :return: SparseTensor
@@ -172,7 +174,9 @@ if TorchDependencyFlag:
     def SparseDenseElementwiseMultiply(SparseTensor, DenseTensor, TensorType = torch.sparse.FloatTensor):
         '''
         Used for PyTorch elementwise sparse tensor and dense tensor multiplication.
+
         Refer to https://stackoverflow.com/questions/56880166/how-to-multiply-a-dense-matrix-by-a-sparse-matrix-element-wise-in-pytorch
+
         :param SparseTensor: A PyTorch sparse tensor
         :param DenseTensor: A PyTorch dense tensor
         :param TensorType: Target PyTorch sparse tensor type.

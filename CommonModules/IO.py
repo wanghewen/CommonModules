@@ -142,6 +142,7 @@ def _ListAllFiles(Directory, Extension):
 def GetParentFolders(FilePath, All = False):
     '''
     Use pathlib to get parent folder/list of parent folders of FilePath.
+
     :param String FilePath: Path of a file/folder
     :return: ParentFolder/ParentFolders: String of its parent folder or list of string of its parent folders
     :rtype: String or List[String]
@@ -408,6 +409,7 @@ if DependencyFlag:
     def ExportSparseMatrix(Path, SparseMatrix):
         '''
         Export a scipy sparse matrix to a file using matrix market format.
+
         Please refer to http://math.nist.gov/MatrixMarket/formats.html for more information about this format.
     
         :param String Path: The stored file location.

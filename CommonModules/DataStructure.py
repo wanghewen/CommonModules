@@ -6,7 +6,18 @@ __author__ = "Wang Hewen"
 import collections
 
 class DefaultOrderedDict(collections.OrderedDict):
-    # Source: http://stackoverflow.com/a/6190500/562769
+    '''
+    Source: http://stackoverflow.com/a/6190500/562769
+
+    Example::
+
+        >>> d = DefaultOrderedDict(int)
+        >>> s = "bacabc"
+        >>> for k in s: d[k] += 1
+        >>> d
+        OrderedDefaultDict(<class 'int'>, DefaultOrderedDict([('b', 2), ('a', 2), ('c', 2)]))
+
+    '''
     def __init__(self, default_factory=None, *a, **kw):
         if (default_factory is not None and
            not isinstance(default_factory, collections.Callable)):
@@ -33,9 +44,6 @@ class DefaultOrderedDict(collections.OrderedDict):
             args = self.default_factory,
         return type(self), args, None, None, list(self.items())
 
-    def copy(self):
-        return self.__copy__()
-
     def __copy__(self):
         return type(self)(self.default_factory, self)
 
@@ -50,16 +58,17 @@ class DefaultOrderedDict(collections.OrderedDict):
 
 class NestedDict(dict):
     '''
-    Implementation of perl's autovivification feature(i.e. Nested dicts). 
-    E.g. 
+    Implementation of perl's autovivification feature(i.e. Nested dicts).
 
-    a = NestedDict()
+    Example::
 
-    a[1][2][3] = 4
-    a[1][3][3] = 5
-    a[1][2]['test'] = 6
+        >>> a = NestedDict()
+        >>> a[1][2][3] = 4
+        >>> a[1][3][3] = 5
+        >>> a[1][2]['test'] = 6
+        >>> print(a)
+        {1: {2: {3: 4, 'test': 6}, 3: {3: 5}}}
 
-    print a
     '''
     def __getitem__(self, item):
         try:
