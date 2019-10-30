@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 """ Provide log related functions. You need to Initialize the logger and use the logger to make logs.
 
-E.g.
+Example:
 
 >>> logger = Initialize()
 

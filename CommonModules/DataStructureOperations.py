@@ -24,8 +24,13 @@ except Exception:
 
 def FlattenList(List):
     '''
-    Flatten a list using itertools no matter how many nest it has. 
-    E.g. [['foo', 'baz'], ['gg']] or [[['foo', 'baz'], ['gg']]] to ['foo', 'baz', 'gg'].
+    Flatten a list using itertools no matter how many nest it has.
+
+    Example::
+        >>> FlattenList([['foo', 'baz'], ['gg']])
+        ['foo', 'baz', 'gg']
+        >>> FlattenList([[['foo', 'baz'], ['gg']]])
+        ['foo', 'baz', 'gg']
 
     :param List[Variant]: The list you want to flatten
     :return: List: Flattened list
