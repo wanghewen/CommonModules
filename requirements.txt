@@ -1,4 +1,4 @@
 scipy
-pytorch
+torch
 numpy
 networkx

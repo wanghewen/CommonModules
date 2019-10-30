@@ -12,6 +12,6 @@ setup(
     install_requires=["wget"],
 	extras_require = {
         'Advance DataStructureOperations':  ['scipy', 'numpy'],
-		'Advance DataStructure IO':  ['networkx', 'numpy', 'scipy', 'pytorch']
+		'Advance DataStructure IO':  ['networkx', 'numpy', 'scipy', 'torch']
     }
 )
