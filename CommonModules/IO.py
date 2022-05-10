@@ -12,6 +12,7 @@ import zipfile
 import urllib
 import wget
 import pathlib
+import hashlib
 
 DependencyFlag = False #Check if dependencies are satisfied. If not, some advanced functions will not be defined.
 try:
@@ -230,7 +231,7 @@ def ExportToPkl(Path,Content):
     #if(isinstance(Content, collections.defaultdict)):
     #    Content = dict(Content)
     with open(Path, "wb") as fd:
-        pickle.dump(Content, fd)
+        pickle.dump(Content, fd, protocol=4)
 
 def ImportFromPkl(Path):
     '''
@@ -343,6 +344,22 @@ def DownloadFile(URL, Destination = "./download", ExpectedBytes = None, IsDestin
         raise FileExistsError(
             'Failed to verify ' + FileName + '. File exists or corrupted. Can you get to it with a browser?')
     return FileName
+
+
+def GetFileHash(FilePath, HashFactory=hashlib.md5, ChunkNumBlocks=128):
+    '''
+
+    :param FilePath: Paths of the file you want to calculate file hash.
+    :param HashFactory: Algorithm of hash calculation. By default, it's MD5.
+    :param ChunkNumBlocks: Number of Blocks to be read. Use 128 as default.
+    :return: Hash: Hex representation of file hash
+    :rtype String
+    '''
+    h = HashFactory()
+    with open(FilePath, 'rb') as f:
+        for chunk in iter(lambda: f.read(ChunkNumBlocks*h.block_size), b''):
+            h.update(chunk)
+    return h.hexdigest()
 
 
 if DependencyFlag:

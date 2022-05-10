@@ -22,3 +22,16 @@ Example: list all files under current working directory
 Please refer to **[http://commonmodules.readthedocs.io/en/latest/](http://commonmodules.readthedocs.io/en/latest/)** for more information.  
 
 Wecome any issues or pull requests~
+
+
+## Development
+### Upload to PyPI:
+Install `twine` through `pip install twine`
+
+`rm -rf ./dist`
+
+`python setup.py sdist bdist_wheel`
+
+`twine upload --repository-url https://test.pypi.org/legacy/ dist/*`
+
+`twine upload dist/*`

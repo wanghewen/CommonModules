@@ -13,3 +13,5 @@
 /dist
 *.suo
 /docs/_build
+/build/
+/metastore_db/

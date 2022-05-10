@@ -3,5 +3,5 @@
 
 __author__ = "Wang Hewen"
 
-__all__ = ["DataStructure", "DataStructureOperations", "IO", "Log", "Utilities"]
+__all__ = ["DataStructure", "DataStructureOperations", "IO", "Log", "Utilities", "Science"]
 from . import *
