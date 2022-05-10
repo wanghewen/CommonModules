@@ -1,3 +1,17 @@
+## [0.1.25] - 2022-05-11
+### Added
+- Added GetFileHash function
+### Changed
+- Update README.md for upload to PyPI
+
+## [0.1.24] - 2020-04-29
+### Added
+- Added PrecisionAtTopK function
+
+## [0.1.23] - 2019-12-05
+### Changed
+- Update ExportToPkl and use protocol=4 in order to avoid object >4GB error
+
 ## [0.1.22] - 2019-10-30
 ### Changed
 - Update logging functions to accept multiple message arguments

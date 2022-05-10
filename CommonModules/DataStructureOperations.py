@@ -192,3 +192,30 @@ if TorchDependencyFlag:
         dv = DenseTensor[i[0, :], i[1, :]]  # get values from relevant entries of dense matrix
         Result = TensorType(i, v * dv, SparseTensor.size())
         return Result
+
+
+    def SparseTensorSlice(SparseTensor, RowIndexRange, ColumnIndexRange):
+        '''
+        Used for slicing PyTorch coo sparse tensors. Will use scipy sparse matrix as intermediate variables.
+
+        Example:
+        SparseTensorSlice(sparse_tensor, [1,2], [3,4])
+        SparseTensorSlice(sparse_tensor, range(1,3), range(3,5))
+
+        :param torch.sparse.FloatTensor SparseTensor: A PyTorch sparse tensor
+        :param List/Range RowIndexRange: A list of rows need to be selected
+        :param List/Range ColumnIndexRange: A list of columns need to be selected
+        :return: SparseTensor
+        '''
+
+        if max(RowIndexRange) >= SparseTensor.size()[0]:
+            raise ValueError("RowIndexRange out of range")
+        if max(ColumnIndexRange) >= SparseTensor.size()[1]:
+            raise ValueError("ColumnIndexRange out of range")
+        CoalesceTensor = SparseTensor.coalesce()
+        TensorIndices = CoalesceTensor.indices().numpy()
+        TensorValues = CoalesceTensor.values().numpy()
+        coo_matrix = scipy.sparse.coo_matrix((TensorValues, (TensorIndices[0], TensorIndices[1])))
+        csr_matrix = coo_matrix.tocsr()
+        csr_matrix = csr_matrix[RowIndexRange, :][:, ColumnIndexRange]
+        return ConvertSparseMatrixToSparseTensor(csr_matrix)
